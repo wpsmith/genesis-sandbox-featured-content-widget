@@ -1,19 +1,14 @@
-# Genesis Sandbox Featured Content Widget #
-**Contributors:** wpsmith 
-  
+=== Genesis Sandbox Featured Content Widget ===
+Contributors: wpsmith 
 Donate link:http://wpsmith.net
-**Tags:** genesis, genesiswp, studiopress, featured post, cu
-  
-**Requires at least:** 3.6
-  
-**Tested up to:** 3.6
-  
-**Stable tag:** trunk
-  
+Tags: genesis, genesiswp, studiopress, featured post, cu
+Requires at least: 3.6
+Tested up to: 3.6
+Stable tag: trunk
 
 Genesis Featured Content with support for custom post types, taxonomies, and so much more.
 
-## Description ##
+== Description ==
 
 Genesis Sandbox Featured Content Widget adds additional functionality to the Genesis Featured Posts Widget.  Specifically it:
 
@@ -36,7 +31,7 @@ New features include:
 *   Excerpt length & cutoffs options added
 *   
 
-## Installation ##
+== Installation ==
 
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your WordPress installation and then activate the Plugin from Plugins page.
 
@@ -46,12 +41,12 @@ Extract the zip file and just drop the contents in the wp-content/plugins/ direc
 4.  Drag Widget to desired sidebar
 5.  Fill in widget settings
 
-## Frequently Asked Questions ##
+== Frequently Asked Questions ==
 
-###Why a new version of GFWA?###
+=Why a new version of GFWA?=
 Well, I bother Nick all the time to change things. He's busy. I'm busy. So, instead of hassling with the plugin, convincing Nick or whomever, I decided it was time just to create my own.
 
-###What Hooks are available?###
+=What Hooks are available?=
 
 1. gsfc_before_loop - before the query is formulated
 1. gsfc_before_post_content - before the content
@@ -71,7 +66,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_after_[TAXONOMY]_more (alias of gsfc_after_category_more) - after the archive more conditional block
 1. gs_featured_content_show_content - create your own custom content block
 
-### What Filters are available? ###
+= What Filters are available? =
 
 1. gsfc_query_args - filter the main query args
 1. gsfc_exclude_post_types - used to prevent post types from appearing in the post type list in the widget form
@@ -80,10 +75,10 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_list_items - HTML markup for the list items
 1. gsfc_form_fields - Add custom fields to widget form
 
-## Changelog ##
+== Changelog ==
 1.0.0 (09/04/2013)
 
 * First Public Release
 
-## Special Thanks ##
+== Special Thanks ==
 I owe a huge debt of gratitude to all the folks at StudioPress & Gary Jones, their themes make my life easier.
