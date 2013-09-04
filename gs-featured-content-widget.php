@@ -592,7 +592,14 @@ class GS_Featured_Content extends WP_Widget {
         
         $extra_posts_args = apply_filters( 'gsfc_extra_post_args', $extra_posts_args, $instance );
             
-        $wp_query = new WP_Query( $extra_posts_args );
+        if ( !empty( $instance['optimize'] && !empty( $instance['custom_field'] ) ) {
+            if ( false === ( $gsfc_query = get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) ) {
+                $wp_query = new WP_Query( $extra_posts_args );
+                set_transient( 'gsfc_extra_posts_' . $instance['custom_field'], $wp_query );
+            } else {
+                $wp_query = $gsfc_query;
+            }
+        }
         
         $listitems = '';
         $items = array();
@@ -721,6 +728,13 @@ class GS_Featured_Content extends WP_Widget {
         
         if ( 0 === $instance['posts_num'] ) return;
         
+        //* Optimize Query
+        if ( ! empty( $instance['optimize'] ) ) {
+            $q_args['cache_results'] = false;
+            if ( empty( $instance['paged'] ) && empty( $instance['show_paged']  )
+                $q_args['no_found_rows'] = true;
+        }
+        
         $instance['q_args'] = $q_args;
         GS_Featured_Content::$widget_instance = $instance;
         $query_args = array_merge(
@@ -743,7 +757,14 @@ class GS_Featured_Content extends WP_Widget {
         
         $query_args = apply_filters( 'gsfc_query_args', $query_args, $instance );
         
-		$wp_query = new WP_Query( $query_args );
+		if ( !empty( $instance['optimize'] && !empty( $instance['custom_field'] ) ) {
+            if ( false === ( $gsfc_query = get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
+                $wp_query = new WP_Query( $extra_posts_args );
+                set_transient( 'gsfc_main_' . $instance['custom_field'], $wp_query );
+            } else {
+                $wp_query = $gsfc_query;
+            }
+        }
 
 		if ( have_posts() ) : 
             while ( have_posts() ) : the_post();
