@@ -176,7 +176,7 @@ class GS_Featured_Content extends WP_Widget {
 		);
         
         $name = __( 'Genesis Sandbox', 'gsfc' );
-        if ( is_defined( 'CHILD_NAME' ) && true === apply_filters( 'gsfc_widget_name', false ) )
+        if ( defined( 'CHILD_NAME' ) && true === apply_filters( 'gsfc_widget_name', false ) )
             $name = CHILD_THEME_NAME;
         elseif ( apply_filters( 'gsfc_widget_name', false ) )
             $name = apply_filters( 'gsfc_widget_name', false );
