@@ -125,8 +125,8 @@ class GS_Featured_Content extends WP_Widget {
             'link_title_field'        => '',
             'meta_key'                => '',
             'more_from_category'      => '',
-            'more_from_category_text' => __( 'More Posts from this Category', CHILD_DOMAIN ),
-            'more_text'               => __( '[Read More...]', CHILD_DOMAIN ),
+            'more_from_category_text' => __( 'More Posts from this Category', 'gsfc' ),
+            'more_text'               => __( '[Read More...]', 'gsfc' ),
             'optimize'                => 1,
             'order'                   => '',
             'orderby'                 => '',
@@ -134,7 +134,7 @@ class GS_Featured_Content extends WP_Widget {
             'paged'                   => '',
             'post_align'              => '',
             'post_id'                 => '',
-            'post_info'               => '[post_date] ' . __( 'By', CHILD_DOMAIN ) . ' [post_author_posts_link] [post_comments]',
+            'post_info'               => '[post_date] ' . __( 'By', 'gsfc' ) . ' [post_author_posts_link] [post_comments]',
             'post_meta'               => '[post_categories] [post_tags]',
             'post_type'               => 'post',
             'posts_cat'               => '',
@@ -1179,15 +1179,15 @@ class GS_Featured_Content extends WP_Widget {
                 //* Box 4
 				array(
 					'optimize'               => array(
-						'label'       => __( 'Optimize?', CHILD_DOMAIN ),
+						'label'       => __( 'Optimize?', 'gsfc' ),
 						'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set custom field.',
 						'type'        => 'checkbox',
 						'save'        => true,
 						'requires'    => '',
 					),
                     'custom_field'            => array(
-						'label'       => __( 'Instance Identification Field', CHILD_DOMAIN ),
-						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', CHILD_DOMAIN ),
+						'label'       => __( 'Instance Identification Field', 'gsfc' ),
+						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
 						'type'        => 'text',
 						'save'        => false,
 						'requires'    => '',
