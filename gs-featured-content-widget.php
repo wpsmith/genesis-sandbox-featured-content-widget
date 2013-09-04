@@ -28,10 +28,13 @@
  * @since      1.1.0
  */
 
+/** Exit if accessed directly */
+if ( ! defined( 'ABSPATH' ) ) exit( 'Cheatin&#8217; uh?' );
+
 /** Load textdomain for translation */
 load_plugin_textdomain( 'gsfc', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 
-register_activation_hook( __FILE__, 'gfwa_activation_check' );
+// register_activation_hook( __FILE__, 'gsfc_activation_check' );
 /**
  * Checks for minimum Genesis Theme version before allowing plugin to activate
  *
@@ -53,12 +56,19 @@ function gsfc_activation_check() {
 
     if ( version_compare( $version, $latest, '<' ) ) {
         deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
-        wp_die( sprintf( __( 'Sorry, you can\'t activate without %1$sGenesis %2$s%3$s or greater', 'gfwa' ), '<a href="http://wpsmith.net/get-genesis/">', $latest, '</a>' ) );
+        wp_die( sprintf( __( 'Sorry, you can\'t activate without %1$sGenesis %2$s%3$s or greater', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', $latest, '</a>' ) );
     }
 }
- 
-/** Exit if accessed directly */
-if ( ! defined( 'ABSPATH' ) ) exit( 'Cheatin&#8217; uh?' );
+
+add_action( 'widgets_init', 'gs_load_widgets' );
+/**
+ * Register widgets for use in the Genesis theme.
+ *
+ * @since 1.7.0
+ */
+function gs_load_widgets() {
+	register_widget( 'GS_Featured_Content' );
+}
 
 /**
  * Genesis Sandbox Featured Post widget class.
@@ -164,8 +174,14 @@ class GS_Featured_Content extends WP_Widget {
 			'width'   => 505,
 			'height'  => 350,
 		);
+        
+        $name = __( 'Genesis Sandbox', 'gsfc' );
+        if ( is_defined( 'CHILD_NAME' ) && true === apply_filters( 'gsfc_widget_name', false ) )
+            $name = CHILD_THEME_NAME;
+        elseif ( apply_filters( 'gsfc_widget_name', false ) )
+            $name = apply_filters( 'gsfc_widget_name', false );
 
-		parent::__construct( 'featured-content', __( 'GS - Featured Content', 'gsfc' ), $widget_ops, $control_ops );
+		parent::__construct( 'featured-content', sprintf( __( '%s - Featured Content', 'gsfc' ), $name ), $widget_ops, $control_ops );
         
         
         GS_Featured_Content::add();
@@ -593,7 +609,7 @@ class GS_Featured_Content extends WP_Widget {
         
         $extra_posts_args = apply_filters( 'gsfc_extra_post_args', $extra_posts_args, $instance );
             
-        if ( !empty( $instance['optimize'] && !empty( $instance['custom_field'] ) ) {
+        if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
             if ( false === ( $gsfc_query = get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) ) {
                 $wp_query = new WP_Query( $extra_posts_args );
                 set_transient( 'gsfc_extra_posts_' . $instance['custom_field'], $wp_query );
@@ -732,7 +748,7 @@ class GS_Featured_Content extends WP_Widget {
         //* Optimize Query
         if ( ! empty( $instance['optimize'] ) ) {
             $q_args['cache_results'] = false;
-            if ( empty( $instance['paged'] ) && empty( $instance['show_paged']  )
+            if ( empty( $instance['paged'] ) && empty( $instance['show_paged']  ) )
                 $q_args['no_found_rows'] = true;
         }
         
@@ -758,7 +774,7 @@ class GS_Featured_Content extends WP_Widget {
         
         $query_args = apply_filters( 'gsfc_query_args', $query_args, $instance );
         
-		if ( !empty( $instance['optimize'] && !empty( $instance['custom_field'] ) ) {
+		if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
             if ( false === ( $gsfc_query = get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
                 $wp_query = new WP_Query( $extra_posts_args );
                 set_transient( 'gsfc_main_' . $instance['custom_field'], $wp_query );
@@ -1538,7 +1554,7 @@ class GS_Featured_Content extends WP_Widget {
         $columns = GS_Featured_Content::get_form_fields();
         
         //* Title Field
-        echo '<p><label for="'. $this->get_field_id( 'title' ) .'">'. __( 'Title', 'gfwa' ) .':</label><input type="text" id="'. $this->get_field_id( 'title' ) .'" name="'. $this->get_field_name( 'title' ) .'" value="'. esc_attr( $instance['title'] ) .'" style="width:99%;" /></p>';
+        echo '<p><label for="'. $this->get_field_id( 'title' ) .'">'. __( 'Title', 'gsfc' ) .':</label><input type="text" id="'. $this->get_field_id( 'title' ) .'" name="'. $this->get_field_name( 'title' ) .'" value="'. esc_attr( $instance['title'] ) .'" style="width:99%;" /></p>';
         
         foreach( $columns as $column => $boxes ) {
 			if( 'col1' == $column )
@@ -1572,7 +1588,7 @@ class GS_Featured_Content extends WP_Widget {
 							foreach ( $post_types as $post_type ) 
 								echo '<option style="padding-right:10px;" value="'. esc_attr( $post_type ) .'" '. selected( esc_attr( $post_type ), $instance['post_type'], false ) .'>'. esc_attr( $post_type ) .'</option>'; 
 
-								echo '<option style="padding-right:10px;" value="any" '. selected( 'any', $instance['post_type'], false ) .'>'. __( 'any', 'gfwa' ) .'</option>'; 
+								echo '<option style="padding-right:10px;" value="any" '. selected( 'any', $instance['post_type'], false ) .'>'. __( 'any', 'gsfc' ) .'</option>'; 
 								
 							echo '</select></p>';
 							
@@ -1582,7 +1598,7 @@ class GS_Featured_Content extends WP_Widget {
 							
 							echo '<p'. $style .'><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
 								<select '. $class .' id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
-									<option value="" '. selected( '', $instance['page_id'], false ) .'>'. attribute_escape( __( 'Select page', 'gfwa' ) ) .'</option>';
+									<option value="" '. selected( '', $instance['page_id'], false ) .'>'. attribute_escape( __( 'Select page', 'gsfc' ) ) .'</option>';
 
 									$pages = get_pages();
 									foreach ( $pages as $page ) 
@@ -1598,7 +1614,7 @@ class GS_Featured_Content extends WP_Widget {
 							echo '<p'. $style .'"><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
 
 								<select style="max-width: 228px;" id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
-									<option style="padding-right:10px;" value="" '. selected( '', $instance['posts_term'], false ) .'>'. __( 'All Taxonomies and Terms', 'gfwa' ) .'</option>';
+									<option style="padding-right:10px;" value="" '. selected( '', $instance['posts_term'], false ) .'>'. __( 'All Taxonomies and Terms', 'gsfc' ) .'</option>';
 									
 									$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
 									$taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
