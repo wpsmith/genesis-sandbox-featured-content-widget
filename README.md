@@ -34,7 +34,7 @@ New features include:
 *   Pushed everything to a framework approach so it can all be removed easily
 *   HTML5 & Genesis 2.0 updated
 *   Excerpt length & cutoffs options added
-*   
+*   White labeled naming option
 
 ## Installation ##
 
@@ -53,6 +53,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 
 ###What Hooks are available?###
 
+1. gsfc_widget_name - replace 'Genesis Sandbox' by returning a string with a new prefix name
 1. gsfc_before_loop - before the query is formulated
 1. gsfc_before_post_content - before the content
 1. gsfc_post_content - standard content output

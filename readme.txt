@@ -29,7 +29,7 @@ New features include:
 *   Pushed everything to a framework approach so it can all be removed easily
 *   HTML5 & Genesis 2.0 updated
 *   Excerpt length & cutoffs options added
-*   
+*   White labeled naming option
 
 == Installation ==
 
@@ -68,6 +68,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 
 = What Filters are available? =
 
+1. gsfc_widget_name - replace 'Genesis Sandbox' by returning a string with a new prefix name
 1. gsfc_query_args - filter the main query args
 1. gsfc_exclude_post_types - used to prevent post types from appearing in the post type list in the widget form
 1. gsfc_exclude_taxonomies - used to prevent taxonomies and related terms from appearing in the terms and taxonomies list in the widget form

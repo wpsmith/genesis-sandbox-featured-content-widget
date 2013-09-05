@@ -284,7 +284,7 @@ class GS_Featured_Content extends WP_Widget {
      * @return bool True if option has value
      */
     protected static function has_value( $opt ) {
-        if( isset( GS_Featured_Content::$widget_instance[ $opt ] ) && GS_Featured_Content::$widget_instance[ $opt ] )
+        if( is_array( GS_Featured_Content::$widget_instance ) && isset( GS_Featured_Content::$widget_instance[ $opt ] ) && GS_Featured_Content::$widget_instance[ $opt ] )
             return true;
         return false;
     }
@@ -551,6 +551,37 @@ class GS_Featured_Content extends WP_Widget {
                 genesis_posts_nav();
     }
     
+    protected static function get_transient( $name ) {
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        if ( is_multisite() )
+            return get_site_transient( $name );
+        else
+            return get_transient( $name );
+    }
+    
+    // @todo ensure transient name is < 40 chars
+        // Enable multisite transients
+    protected static function set_transient( $name, $value, $time = 86400 ) {
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        if ( is_multisite() )
+            set_site_transient( $name, $value, $time );
+        else
+            set_transient( $name, $value, $time );
+    }
+    
+    // @todo ensure transient name is < 40 chars
+        // Enable multisite transients
+    protected static function delete_transient( $name ) {
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        if ( is_multisite() )
+            delete_site_transient( $name );
+        else
+            delete_transient( $name );
+    }
+    
     /**
      * The More Posts from Category.
      * 
@@ -585,6 +616,7 @@ class GS_Featured_Content extends WP_Widget {
      * @param array $instance The settings for the particular instance of the widget.
      */
     public static function do_extra_posts( $instance ) {
+        global $wp_query;
         if ( empty( $instance['extra_posts'] ) && empty( $instance['extra_num'] ) ) return;
         
         $before_title = $instance['widget_args']['before_title'];
@@ -608,22 +640,25 @@ class GS_Featured_Content extends WP_Widget {
         );
         
         $extra_posts_args = apply_filters( 'gsfc_extra_post_args', $extra_posts_args, $instance );
-            
+        
         if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
-            if ( false === ( $gsfc_query = get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) ) {
-                $wp_query = new WP_Query( $extra_posts_args );
-                set_transient( 'gsfc_extra_posts_' . $instance['custom_field'], $wp_query );
-            } else {
-                $wp_query = $gsfc_query;
+            if ( ! empty( $instance['delete_transients'] ) )
+                GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
+            if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) ) {
+                $gsfc_query = new WP_Query( $extra_posts_args );
+                $time = !empty( $instance['transients_time'] ) ? (int)$instance['transients_time'] : 60 * 60 * 24;
+                GS_Featured_Content::set_transient( 'gsfc_extra_posts_' . $instance['custom_field'], $gsfc_query, $time );
             }
+        } else {
+            $gsfc_query = new WP_Query( $extra_posts_args );
         }
         
         $listitems = '';
         $items = array();
         
-        if ( have_posts() ) :
+        if ( $gsfc_query->have_posts() ) :
             GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
-            while ( have_posts() ) : the_post();
+            while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
                 GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
                 
                 $_genesis_displayed_ids[] = get_the_ID();
@@ -652,217 +687,6 @@ class GS_Featured_Content extends WP_Widget {
         wp_reset_query();
     }
     
-	/**
-	 * Echo the widget content.
-	 *
-	 * @since 0.1.8
-	 *
-	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
-	 * @param array $instance The settings for the particular instance of the widget.
-	 */
-	public function widget( $args, $instance ) {
-        GS_Featured_Content::$widget_instance = $instance;
-		global $wp_query, $_genesis_displayed_ids, $gs_counter;
-
-		extract( $args );
-        $instance['widget_args'] = $args;
-
-		//* Merge with defaults
-		$instance = wp_parse_args( (array) $instance, $this->defaults );
-
-		echo $before_widget;
-        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
-        
-        if ( ! empty( $instance['posts_offset'] ) && ! empty( $instance['paged'] ) )
-            add_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
-        else
-            remove_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
-
-		//* Set up the author bio
-		if ( ! empty( $instance['title'] ) ) {
-			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
-        }
-        
-        $q_args = array();
-        
-        //* Page ID
-        if ( ! empty( $instance['page_id'] ) )
-            $q_args['page_id'] = $instance['page_id'];
-        
-        //* Term Args
-        if ( ! empty( $instance['posts_term'] ) ) {
-            $posts_term = explode( ',', $instance['posts_term'] );
-            if ( $posts_term['0'] == 'category' )
-                $posts_term['0'] = 'category_name';
-            if ( $posts_term['0'] == 'post_tag' )
-                $posts_term['0'] = 'tag';
-            if ( isset( $posts_term['1'] ) )
-                $q_args[$posts_term['0']] = $posts_term['1'];
-        }
-        
-        if ( ! empty( $posts_term['0'] ) ) {
-            if ( $posts_term['0'] == 'category_name' )
-                $taxonomy = 'category';
-            elseif ( $posts_term['0'] == 'tag' )
-                $taxonomy = 'post_tag';
-            else
-                $taxonomy = $posts_term['0'];
-        } else {
-            $taxonomy = 'category';
-        }
-        $instance['posts_term'] = $posts_term;
-        $instance['taxonomy']   = $taxonomy;
-        GS_Featured_Content::$widget_instance = $instance;
-        if ( ! empty( $instance['exclude_terms'] ) ) {
-            $exclude_terms = explode( ',', str_replace( ' ', '', $instance['exclude_terms'] ) );
-            $q_args[$taxonomy . '__not_in'] = $exclude_terms;
-        }
-        
-        //* Paged arg
-        $page = '';
-        if ( ! empty( $instance['paged'] ) )
-            $page = get_query_var( 'paged' );
-        
-        
-        //* Offset
-        if ( ! empty( $instance['posts_offset'] ) ) {
-            global $gs_offset;
-            $gs_offset = $instance['posts_offset'];
-            $q_args['offset'] = $gs_offset;
-        }
-        
-        //* Post IDs
-        if ( ! empty( $instance['post_id'] ) ) {
-            $IDs = explode( ',', str_replace( ' ', '', $instance['post_id'] ) );
-            if ( $instance['include_exclude'] == 'include' )
-                $q_args['post__in'] = $IDs;
-            else
-                $q_args['post__not_in'] = $IDs;
-        }
-        
-        //* Before Loop Action
-        GS_Featured_Content::action( 'gs_before_loop', $instance );
-        
-        if ( 0 === $instance['posts_num'] ) return;
-        
-        //* Optimize Query
-        if ( ! empty( $instance['optimize'] ) ) {
-            $q_args['cache_results'] = false;
-            if ( empty( $instance['paged'] ) && empty( $instance['show_paged']  ) )
-                $q_args['no_found_rows'] = true;
-        }
-        
-        $instance['q_args'] = $q_args;
-        GS_Featured_Content::$widget_instance = $instance;
-        $query_args = array_merge(
-            $q_args,
-            array(
-                'post_type'      => $instance['post_type'], 
-                'posts_per_page' => $instance['posts_num'], 
-                'orderby'        => $instance['orderby'], 
-                'order'          => $instance['order'], 
-                'meta_key'       => $instance['meta_key'], 
-                'paged'          => $page ,
-            ) 
-        );
-        $instance['query_args'] = $query_args;
-        GS_Featured_Content::$widget_instance = $instance;
-        
-        //* Exclude displayed IDs from this loop?
-		if ( $instance['exclude_displayed'] )
-			$query_args['post__not_in'] = (array) $_genesis_displayed_ids;
-        
-        $query_args = apply_filters( 'gsfc_query_args', $query_args, $instance );
-        
-		if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
-            if ( false === ( $gsfc_query = get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
-                $wp_query = new WP_Query( $extra_posts_args );
-                set_transient( 'gsfc_main_' . $instance['custom_field'], $wp_query );
-            } else {
-                $wp_query = $gsfc_query;
-            }
-        }
-
-		if ( have_posts() ) : 
-            while ( have_posts() ) : the_post();
-
-                $_genesis_displayed_ids[] = get_the_ID();
-
-                GS_Featured_Content::framework( $instance );
-
-            endwhile; 
-        
-            GS_Featured_Content::action( 'gsfc_endwhile', $instance );
-            
-        endif;
-        
-        $gs_counter = 0;
-
-        GS_Featured_Content::action( 'gsfc_after_loop', $instance );
-
-		//* Restore original query
-		wp_reset_query();
-        
-        GS_Featured_Content::action( 'gsfc_after_loop_reset', $instance );
-
-		echo $after_widget;
-        remove_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
-        remove_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
-
-	}
-    
-    /**
-     * Adds a class to tag, checks whether any classes currently exist.
-     * 
-     * @param string $old_tag Old tag
-     * 
-     * @return string HTML opening tag.
-     */
-    public static function build_tag( $old_tag ) {
-        
-        preg_match_all( '/(\S+)=["\']?((?:.(?!["\']?\s+(?:\S+)=|[>"\']))+.)["\']?/si', $old_tag, $result, PREG_PATTERN_ORDER );
-        if ( !in_array( 'class', $result[1] ) ) {
-            $tag = str_replace( '>', ' class="additional-posts-title">', $old_tag ) . esc_html( $instance['extra_title'] ) . $after_title;
-        } else {
-            $tag = '<';
-            preg_match_all( '/<([a-zA-Z0-9]*)[^>]*>/si', $old_tag, $r, PREG_PATTERN_ORDER );
-            $tag .= $r[1][0];
-            
-            foreach( array_combine( $result[1], $result[2] ) as $attr => $value ) {
-                if ( 'class' == $attr )
-                    $tag .= sprintf( ' %s="%s"', $attr, $value . ' additional-posts-title' );
-                else
-                    $tag .= sprintf( ' %s="%s"', $attr, $value );
-            }
-            
-            $tag .= '>';
-        }
-        return $tag;
-    }
-
-	/**
-	 * Update a particular instance.
-	 *
-	 * This function should check that $new_instance is set correctly.
-	 * The newly calculated value of $instance should be returned.
-	 * If "false" is returned, the instance won't be saved/updated.
-	 *
-	 * @since 0.1.8
-	 *
-	 * @param array $new_instance New settings for this instance as input by the user via form()
-	 * @param array $old_instance Old settings for this instance
-	 * @return array Settings to save or bool false to cancel saving
-	 */
-	public function update( $new_instance, $old_instance ) {
-		$new_instance['excerpt_cutoff'] = '...' == $new_instance['excerpt_cutoff'] ? '&hellip;' : $new_instance['excerpt_cutoff'];
-		$new_instance['title_cutoff']   = '...' == $new_instance['title_cutoff'] ? '&hellip;' : $new_instance['title_cutoff'];
-		$new_instance['title']          = strip_tags( $new_instance['title'] );
-		$new_instance['more_text']      = strip_tags( $new_instance['more_text'] );
-		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
-		return $new_instance;
-
-	}
-    
     /**
      * Used to exclude taxonomies and related terms from list of available terms/taxonomies in widget form()
      *
@@ -872,7 +696,7 @@ class GS_Featured_Content extends WP_Widget {
     public static function exclude_taxonomies( $taxonomy ) {
         $filters = array( '', 'nav_menu' );
         $filters = apply_filters( 'gsfc_exclude_taxonomies', $filters );
-        return( !in_array( $taxonomy->name, $filters ) );
+        return ( ! in_array( $taxonomy->name, $filters ) );
     }
 
     /**
@@ -1169,6 +993,7 @@ class GS_Featured_Content extends WP_Widget {
 						'description' => __( 'Fill in this field if you want to add a custom post class. Will automagically add <code>first</code> where appropriate.', 'gsfc' ),
 						'type'        => 'select',
 						'options'     => array(
+							''              => __( 'Select Class', 'gsfc' ),
 							'one-half'      => __( 'One Half', 'gsfc' ),
 							'one-third'     => __( 'One Third', 'gsfc' ),
 							'one-fourth'    => __( 'One Fourth', 'gsfc' ),
@@ -1181,30 +1006,6 @@ class GS_Featured_Content extends WP_Widget {
 							'four-fifths'   => __( 'Four Fifths', 'gsfc' ),
 							'five-sixths'   => __( 'Five Sixths', 'gsfc' ),
 						),
-						'save'        => false,
-						'requires'    => '',
-					),
-                    'custom_field'            => array(
-						'label'       => __( 'Instance Identification Field', 'gsfc' ),
-						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
-						'type'        => 'text',
-						'save'        => false,
-						'requires'    => '',
-					),
-				),
-                //* Box 4
-				array(
-					'optimize'               => array(
-						'label'       => __( 'Optimize?', 'gsfc' ),
-						'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set custom field.',
-						'type'        => 'checkbox',
-						'save'        => true,
-						'requires'    => '',
-					),
-                    'custom_field'            => array(
-						'label'       => __( 'Instance Identification Field', 'gsfc' ),
-						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
-						'type'        => 'text',
 						'save'        => false,
 						'requires'    => '',
 					),
@@ -1532,9 +1333,85 @@ class GS_Featured_Content extends WP_Widget {
 						),
 					),
 				),
+                //* Box 5
+				array(
+					'optimize'               => array(
+						'label'       => __( 'Optimize?', 'gsfc' ),
+						'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set custom field.',
+						'type'        => 'checkbox',
+						'save'        => true,
+						'requires'    => '',
+					),
+                    'delete_transients'      => array(
+						'label'       => __( 'Delete Transients?', 'gsfc' ),
+						'description' => '',
+						'type'        => 'checkbox',
+						'save'        => true,
+						'requires'    => '',
+					),
+                    'transients_time'         => array(
+						'label'       => __( 'Set Transients Expiration (seconds)', 'gsfc' ),
+						'description' => '',
+						'type'        => 'text',
+						'save'        => false,
+						'requires'    => '',
+					),
+                    'custom_field'            => array(
+						'label'       => __( 'Instance Identification Field', 'gsfc' ),
+						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
+						'type'        => 'text',
+						'save'        => false,
+						'requires'    => '',
+					),
+				),
 			),
 		);
         return apply_filters( 'gsfc_form_fields', $columns, $instance );
+    }
+    
+    /**
+     * Adds a class to tag, checks whether any classes currently exist.
+     * 
+     * @param string $old_tag Old tag
+     * 
+     * @return string HTML opening tag.
+     */
+    public static function build_tag( $old_tag ) {
+        
+        preg_match_all( '/(\S+)=["\']?((?:.(?!["\']?\s+(?:\S+)=|[>"\']))+.)["\']?/si', $old_tag, $result, PREG_PATTERN_ORDER );
+        if ( !in_array( 'class', $result[1] ) ) {
+            $tag = str_replace( '>', ' class="additional-posts-title">', $old_tag ) . esc_html( $instance['extra_title'] ) . $after_title;
+        } else {
+            $tag = '<';
+            preg_match_all( '/<([a-zA-Z0-9]*)[^>]*>/si', $old_tag, $r, PREG_PATTERN_ORDER );
+            $tag .= $r[1][0];
+            
+            foreach( array_combine( $result[1], $result[2] ) as $attr => $value ) {
+                if ( 'class' == $attr )
+                    $tag .= sprintf( ' %s="%s"', $attr, $value . ' additional-posts-title' );
+                else
+                    $tag .= sprintf( ' %s="%s"', $attr, $value );
+            }
+            
+            $tag .= '>';
+        }
+        return $tag;
+    }
+
+    /**
+     * Generate random character string (defaults to 10 chars)
+     * 
+     * @param int $length String length. 
+     * 
+     * @return string Randomized string.
+     */
+    protected static function generate_random_string( $length = 10 ) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $random_string = '';
+        for ( $i = 0; $i < $length; $i++ ) {
+            $random_string .= $characters[ rand( 0, strlen( $characters ) - 1 ) ];
+        }
+        return $random_string;
     }
     
 	/**
@@ -1559,23 +1436,18 @@ class GS_Featured_Content extends WP_Widget {
         foreach( $columns as $column => $boxes ) {
 			if( 'col1' == $column )
 				echo '<div style="float: left; width: 250px;">';
-				
 			else 
 				echo '<div style="float: right; width: 250px;">';
 			
 			foreach( $boxes as $box ){
-				
 				echo '<div style="background: #f1f1f1; border: 1px solid #DDD; padding: 10px 10px 0px 10px; margin-bottom: 5px;">';
 				
 				foreach( $box as $field_id => $args ){
-					
 					$class = $args['save']     ? 'class="gs-widget-control-save" ' : '';
 					$style = $args['requires'] ? ' style="'. GS_Featured_Content::get_display_option( $instance, $args['requires'][0], $args['requires'][1], $args['requires'][2] ) .'"' : '';
 					
 					switch( $args['type'] ) {
-						
 						case 'post_type_select' :
-							
 							echo '<p><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
 								<select '. $class .'id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">';
 							
@@ -1591,29 +1463,21 @@ class GS_Featured_Content extends WP_Widget {
 								echo '<option style="padding-right:10px;" value="any" '. selected( 'any', $instance['post_type'], false ) .'>'. __( 'any', 'gsfc' ) .'</option>'; 
 								
 							echo '</select></p>';
-							
 							break;
-							
-						case 'page_select' :
-							
-							echo '<p'. $style .'><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
-								<select '. $class .' id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
+
+                        case 'page_select' :
+							echo '<p'. $style .'><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label><select '. $class .' id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
 									<option value="" '. selected( '', $instance['page_id'], false ) .'>'. attribute_escape( __( 'Select page', 'gsfc' ) ) .'</option>';
 
 									$pages = get_pages();
 									foreach ( $pages as $page ) 
 										echo '<option style="padding-right:10px;" value="'. esc_attr( $page->ID ) .'" '. selected( esc_attr( $page->ID ), $instance['page_id'], false ) .'>'. esc_attr( $page->post_title ) .'</option>';
-									
 							echo '</select>
 							</p>';
-							
 							break;
 						
 						case 'select_taxonomy' :
-							
-							echo '<p'. $style .'"><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
-
-								<select style="max-width: 228px;" id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
+							echo '<p'. $style .'"><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label><select style="max-width: 228px;" id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">
 									<option style="padding-right:10px;" value="" '. selected( '', $instance['posts_term'], false ) .'>'. __( 'All Taxonomies and Terms', 'gsfc' ) .'</option>';
 									
 									$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
@@ -1634,32 +1498,24 @@ class GS_Featured_Content extends WP_Widget {
 										foreach ( $terms as $term )
 											echo '<option style="margin-left: 8px; padding-right:10px;" value="'. esc_attr( $query_label ) . ',' . $term->slug .'" '. selected( esc_attr( $query_label ) . ',' . $term->slug, $instance['posts_term'], false ) .'>-' . esc_attr( $term->name ) .'</option>';
 											
-									echo '</optgroup>'; 
-									
+                                        echo '</optgroup>'; 
 									}
-									
 								echo '</select></p>';
-							
 							break;
 							
 						case 'text' :
-							
 							echo $args['description'] ? '<p>'. $args['description'] .'</p>' : '';
 
 							echo '<p'. $style .'><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
 									<input type="text" id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'" value="'. esc_attr( $instance[$field_id] ) .'" style="width:95%;" /></p>';
-
 							break;
 						
 						case 'text_small' :
-							
 							echo '<p'. $style .'><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .':</label>
 									<input type="text" id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'" value="'. esc_attr( $instance[$field_id] ) .'" size="2" />'. $args['description'] .'</p>';
-						
 							break;
 							
 						case 'select' :
-							
 							echo '<p'. $style .'"><label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .' </label>
 								<select '. $class .'id="'. $this->get_field_id( $field_id ) .'" name="'. $this->get_field_name( $field_id ) .'">';
 							
@@ -1667,15 +1523,11 @@ class GS_Featured_Content extends WP_Widget {
 									echo '<option style="padding-right:10px;" value="'. $value .'" '. selected( $value, $instance[$field_id], false ) .'>'. $label .'</option>';
 								
 								echo '</select></p>';
-							
 							break;
 							
 						case 'checkbox' :
-							
 							echo '<p'. $style .'><input '. $class .'id="'. $this->get_field_id( $field_id ).'" type="checkbox" name="'. $this->get_field_name( $field_id ) .'" value="1" '. checked( 1, $instance[$field_id], false ) .'/> <label for="'. $this->get_field_id( $field_id ) .'">'. $args['label'] .'</label></p>';
-							
 							break;
-						
 					}
 				}
 				
@@ -1720,5 +1572,199 @@ class GS_Featured_Content extends WP_Widget {
         }
         return $display;
     }
+    
+	/**
+	 * Echo the widget content.
+	 *
+	 * @since 0.1.8
+	 *
+	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
+        GS_Featured_Content::$widget_instance = $instance;
+		global $wp_query, $_genesis_displayed_ids, $gs_counter;
+
+		extract( $args );
+        $instance['widget_args'] = $args;
+
+		//* Merge with defaults
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
+
+		echo $before_widget;
+        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        
+        if ( ! empty( $instance['posts_offset'] ) && ! empty( $instance['paged'] ) )
+            add_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
+        else
+            remove_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
+
+		//* Set up the author bio
+		if ( ! empty( $instance['title'] ) ) {
+			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
+        }
+        
+        $q_args = array();
+        
+        //* Page ID
+        if ( ! empty( $instance['page_id'] ) )
+            $q_args['page_id'] = $instance['page_id'];
+        
+        //* Term Args
+        if ( ! empty( $instance['posts_term'] ) ) {
+            $posts_term = explode( ',', $instance['posts_term'] );
+            if ( $posts_term['0'] == 'category' )
+                $posts_term['0'] = 'category_name';
+            if ( $posts_term['0'] == 'post_tag' )
+                $posts_term['0'] = 'tag';
+            if ( isset( $posts_term['1'] ) )
+                $q_args[$posts_term['0']] = $posts_term['1'];
+        }
+        
+        if ( ! empty( $posts_term['0'] ) ) {
+            if ( $posts_term['0'] == 'category_name' )
+                $taxonomy = 'category';
+            elseif ( $posts_term['0'] == 'tag' )
+                $taxonomy = 'post_tag';
+            else
+                $taxonomy = $posts_term['0'];
+        } else {
+            $taxonomy = 'category';
+        }
+        $instance['posts_term'] = $posts_term;
+        $instance['taxonomy']   = $taxonomy;
+        GS_Featured_Content::$widget_instance = $instance;
+        if ( ! empty( $instance['exclude_terms'] ) ) {
+            $exclude_terms = explode( ',', str_replace( ' ', '', $instance['exclude_terms'] ) );
+            $q_args[$taxonomy . '__not_in'] = $exclude_terms;
+        }
+        
+        //* Paged arg
+        $page = '';
+        if ( ! empty( $instance['paged'] ) )
+            $page = get_query_var( 'paged' );
+        
+        
+        //* Offset
+        if ( ! empty( $instance['posts_offset'] ) ) {
+            global $gs_offset;
+            $gs_offset = $instance['posts_offset'];
+            $q_args['offset'] = $gs_offset;
+        }
+        
+        //* Post IDs
+        if ( ! empty( $instance['post_id'] ) ) {
+            $IDs = explode( ',', str_replace( ' ', '', $instance['post_id'] ) );
+            if ( $instance['include_exclude'] == 'include' )
+                $q_args['post__in'] = $IDs;
+            else
+                $q_args['post__not_in'] = $IDs;
+        }
+        
+        //* Before Loop Action
+        GS_Featured_Content::action( 'gs_before_loop', $instance );
+        
+        if ( 0 === $instance['posts_num'] ) return;
+        
+        //* Optimize Query
+        if ( ! empty( $instance['optimize'] ) ) {
+            $q_args['cache_results'] = false;
+            if ( empty( $instance['paged'] ) && empty( $instance['show_paged']  ) )
+                $q_args['no_found_rows'] = true;
+        }
+        
+        $instance['q_args'] = $q_args;
+        GS_Featured_Content::$widget_instance = $instance;
+        $query_args = array_merge(
+            $q_args,
+            array(
+                'post_type'      => $instance['post_type'], 
+                'posts_per_page' => $instance['posts_num'], 
+                'orderby'        => $instance['orderby'], 
+                'order'          => $instance['order'], 
+                'meta_key'       => $instance['meta_key'], 
+                'paged'          => $page ,
+            ) 
+        );
+        $instance['query_args'] = $query_args;
+        GS_Featured_Content::$widget_instance = $instance;
+        
+        //* Exclude displayed IDs from this loop?
+		if ( $instance['exclude_displayed'] )
+			$query_args['post__not_in'] = (array) $_genesis_displayed_ids;
+        
+        $query_args = apply_filters( 'gsfc_query_args', $query_args, $instance );
+        
+        // get transient
+		if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
+            if ( ! empty( $instance['delete_transients'] ) )
+                GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
+            
+            // Get transient, set transient if transient does not exist
+            if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
+                $gsfc_query = new WP_Query( $query_args );
+                $time = !empty( $instance['transients_time'] ) ? $instance['transients_time'] : 60 * 60 * 24;
+                GS_Featured_Content::set_transient( 'gsfc_main_' . $instance['custom_field'], $gsfc_query, $time );
+            }
+        } else {
+            $gsfc_query = new WP_Query( $query_args );
+        }
+
+		if ( $gsfc_query->have_posts() ) : 
+            while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
+
+                $_genesis_displayed_ids[] = get_the_ID();
+
+                GS_Featured_Content::framework( $instance );
+
+            endwhile; 
+        
+            GS_Featured_Content::action( 'gsfc_endwhile', $instance );
+            
+        endif;
+        
+        $gs_counter = 0;
+
+        GS_Featured_Content::action( 'gsfc_after_loop', $instance );
+
+		//* Restore original query
+		wp_reset_query();
+        
+        GS_Featured_Content::action( 'gsfc_after_loop_reset', $instance );
+
+		echo $after_widget;
+        remove_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        remove_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
+
+	}
+    
+    /**
+	 * Update a particular instance.
+	 *
+	 * This function should check that $new_instance is set correctly.
+	 * The newly calculated value of $instance should be returned.
+	 * If "false" is returned, the instance won't be saved/updated.
+	 *
+	 * @since 0.1.8
+	 *
+	 * @param array $new_instance New settings for this instance as input by the user via form()
+	 * @param array $old_instance Old settings for this instance
+	 * @return array Settings to save or bool false to cancel saving
+	 */
+	public function update( $new_instance, $old_instance ) {
+		$new_instance['excerpt_cutoff'] = '...' == $new_instance['excerpt_cutoff'] ? '&hellip;' : $new_instance['excerpt_cutoff'];
+		$new_instance['title_cutoff']   = '...' == $new_instance['title_cutoff'] ? '&hellip;' : $new_instance['title_cutoff'];
+		$new_instance['title']          = strip_tags( $new_instance['title'] );
+		$new_instance['more_text']      = strip_tags( $new_instance['more_text'] );
+		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
+		$new_instance['custom_field']   = sanitize_title_with_dashes( $new_instance['custom_field'] );
+        
+        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) )
+            GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
+        
+		return $new_instance;
+
+	}
+    
     
 }
