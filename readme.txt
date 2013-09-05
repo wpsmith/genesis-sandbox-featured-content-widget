@@ -30,6 +30,7 @@ New features include:
 *   HTML5 & Genesis 2.0 updated
 *   Excerpt length & cutoffs options added
 *   White labeled naming option
+*   Added remove displayed posts option (won't display a post that already exists on the page)
 
 == Installation ==
 

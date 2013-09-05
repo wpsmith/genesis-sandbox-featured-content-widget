@@ -153,7 +153,7 @@ class GS_Featured_Content extends WP_Widget {
             'posts_term'              => '',
             'show_archive_line'       => 0,
             'show_byline'             => 0,
-            'show_content'            => 'excerpt',
+            'show_content'            => '',
             'show_gravatar'           => 0,
             'show_image'              => 0,
             'show_paged'              => '',
@@ -551,35 +551,53 @@ class GS_Featured_Content extends WP_Widget {
                 genesis_posts_nav();
     }
     
+    /**
+     * Gets transient with multisite support.
+     * Due to multisite support, forces name < 40 chars
+     * 
+     * @param string $name Transient name.
+     */
     protected static function get_transient( $name ) {
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
-        if ( is_multisite() )
+        
+        if ( is_multisite() ) {
+            if ( 40 < strlen( $name ) )
+                $name = substr( $string, 0, 40 );
             return get_site_transient( $name );
-        else
+        } else {
             return get_transient( $name );
+        }
     }
     
-    // @todo ensure transient name is < 40 chars
-        // Enable multisite transients
+    /**
+     * Sets transient with multisite support.
+     * 
+     * @param string $name Transient name.
+     * @param mixed $value Transient value/data.
+     * @param int $time Time to store transient (default: 1 day)
+     */
     protected static function set_transient( $name, $value, $time = 86400 ) {
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
-        if ( is_multisite() )
+        if ( is_multisite() ) {
+            if ( 40 < strlen( $name ) )
+                $name = substr( $string, 0, 40 );
             set_site_transient( $name, $value, $time );
-        else
+        } else {
             set_transient( $name, $value, $time );
+        }
     }
     
-    // @todo ensure transient name is < 40 chars
-        // Enable multisite transients
+    /**
+     * Deletes transient with multisite support.
+     * 
+     * @param string $name Transient name.
+     */
     protected static function delete_transient( $name ) {
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
-        if ( is_multisite() )
+        if ( is_multisite() ) {
+            if ( 40 < strlen( $name ) )
+                $name = substr( $string, 0, 40 );
             delete_site_transient( $name );
-        else
+        } else {
             delete_transient( $name );
+        }
     }
     
     /**
@@ -616,7 +634,7 @@ class GS_Featured_Content extends WP_Widget {
      * @param array $instance The settings for the particular instance of the widget.
      */
     public static function do_extra_posts( $instance ) {
-        global $wp_query;
+        global $wp_query, $_genesis_displayed_ids;
         if ( empty( $instance['extra_posts'] ) && empty( $instance['extra_num'] ) ) return;
         
         $before_title = $instance['widget_args']['before_title'];
@@ -660,7 +678,6 @@ class GS_Featured_Content extends WP_Widget {
             GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
             while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
                 GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
-                
                 $_genesis_displayed_ids[] = get_the_ID();
                 $listitems .= sprintf( '<li><a href="%s" title="%s">%s</a></li>', get_permalink(), the_title_attribute( 'echo=0' ), get_the_title() );
                 $items[] = get_post();
@@ -910,6 +927,13 @@ class GS_Featured_Content extends WP_Widget {
 							'page',
 							true
 						),
+					),
+                    'exclude_displayed'         => array(
+						'label'       => 'Exclude Previously Displayed Posts?',
+						'description' => '',
+						'type'        => 'checkbox',
+						'save'        => true,
+						'requires'    => '',
 					),
 				),
                 
@@ -1587,7 +1611,10 @@ class GS_Featured_Content extends WP_Widget {
 
 		extract( $args );
         $instance['widget_args'] = $args;
-
+        
+        //* Add current page ID
+        $_genesis_displayed_ids[] = get_the_ID();
+        
 		//* Merge with defaults
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
@@ -1661,6 +1688,14 @@ class GS_Featured_Content extends WP_Widget {
                 $q_args['post__not_in'] = $IDs;
         }
         
+        //* Exclude displayed IDs from this loop?
+		if ( ! empty( $instance['exclude_displayed'] ) ) {
+            if ( is_array( $q_args['post__not_in'] ) )
+                $q_args['post__not_in'] = array_unique( array_merge( $q_args['post__not_in'], (array) $_genesis_displayed_ids ) );
+            else
+                $q_args['post__not_in'] = (array) $_genesis_displayed_ids;
+        }
+        
         //* Before Loop Action
         GS_Featured_Content::action( 'gs_before_loop', $instance );
         
@@ -1689,16 +1724,12 @@ class GS_Featured_Content extends WP_Widget {
         $instance['query_args'] = $query_args;
         GS_Featured_Content::$widget_instance = $instance;
         
-        //* Exclude displayed IDs from this loop?
-		if ( $instance['exclude_displayed'] )
-			$query_args['post__not_in'] = (array) $_genesis_displayed_ids;
-        
         $query_args = apply_filters( 'gsfc_query_args', $query_args, $instance );
         
         // get transient
 		if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
             if ( ! empty( $instance['delete_transients'] ) )
-                GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
+                GS_Featured_Content::delete_transient( 'gsfc_main_' . $instance['custom_field'] );
             
             // Get transient, set transient if transient does not exist
             if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
@@ -1706,13 +1737,14 @@ class GS_Featured_Content extends WP_Widget {
                 $time = !empty( $instance['transients_time'] ) ? $instance['transients_time'] : 60 * 60 * 24;
                 GS_Featured_Content::set_transient( 'gsfc_main_' . $instance['custom_field'], $gsfc_query, $time );
             }
+            else {
+            }
         } else {
             $gsfc_query = new WP_Query( $query_args );
         }
 
 		if ( $gsfc_query->have_posts() ) : 
             while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
-
                 $_genesis_displayed_ids[] = get_the_ID();
 
                 GS_Featured_Content::framework( $instance );
@@ -1759,8 +1791,11 @@ class GS_Featured_Content extends WP_Widget {
 		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
 		$new_instance['custom_field']   = sanitize_title_with_dashes( $new_instance['custom_field'] );
         
-        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) )
+        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) )
             GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
+        
+        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) )
+            GS_Featured_Content::delete_transient( 'gsfc_main_' . $instance['custom_field'] );
         
 		return $new_instance;
 
