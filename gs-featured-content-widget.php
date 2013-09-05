@@ -558,7 +558,10 @@ class GS_Featured_Content extends WP_Widget {
      * @param string $name Transient name.
      */
     protected static function get_transient( $name ) {
-        
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG && apply_filters( 'gsfc_debug', false ) ) {
+            GS_Featured_Content::delete_transient( $name );
+            return false;
+        }
         if ( is_multisite() ) {
             if ( 40 < strlen( $name ) )
                 $name = substr( $string, 0, 40 );
