@@ -165,6 +165,7 @@ class GS_Featured_Content extends WP_Widget {
             'title'                   => '',
             'title_cutoff'            => '&hellip;',
             'title_limit'             => '',
+            'transients_time'         => 86400,
 		);
 
 		$widget_ops = array(
@@ -502,7 +503,7 @@ function gsfcSave(t) {
     /**
      * Form submit script.
      */
-    public function admin_scripts() {
+    public static function admin_scripts() {
         $screen = get_current_screen();
         if ( 'widgets' != $screen->base && 'widgets' != $screen->id ) return;
         $min = ( defined( 'WP_DEBUG' ) || defined( 'SCRIPT_DEBUG' ) ) ? '.' : '.min.';
