@@ -1,0 +1,69 @@
+.gsfc-widget-body {
+    overflow: hidden;
+}
+
+.gsfc-left-box,
+.gsfc-right-box {
+    width: 250px;
+}
+
+.gsfc-left-box{
+    float: left;
+}
+
+.gsfc-right-box{
+    float: right;
+}
+
+.gsfc-box,
+.gsfc-box p,
+.gsfc-box div,
+.gsfc-box label {
+    background: #f1f1f1;
+}
+
+.gsfc-box {
+    border: 1px solid #DDD;
+    margin-bottom: 10px;
+    padding: 10px 10px 0;
+}
+
+.gsfc-box div {
+    margin: 0 0 1em;
+}
+
+.page_select select,
+.select select,
+.gsfc-box select {
+    max-width: 228px;
+}
+
+.gsfc-box input[type=checkbox] {
+    margin-right: 5px;
+}
+
+.gs-pad-left-10 {
+    padding-left: 10px;
+}
+
+.gs-pad-right-10,
+.gs-tax-optgroup,
+.gs-tax-opt {
+    padding-right: 10px;
+}
+
+.gs-tax-optgroup {
+    margin-left: 5px;
+}
+
+.gs-tax-opt {
+    margin-left: 8px;
+}
+
+.gs-widefat {
+    width:95%;
+}
+
+.gsfc-small {
+    width: 40px;
+}
