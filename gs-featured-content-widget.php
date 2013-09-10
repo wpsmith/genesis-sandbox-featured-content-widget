@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Genesis Sandbox Featured Content Widget
  * Plugin URI: https://wpsmith.net/
- * Description: Based on Nick Croft's Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
+ * Description: Based on Genesis Featured Widget Amplified by Nick Croft for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
  * Version: 1.0.0
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
@@ -63,13 +63,13 @@ function gsfc_activation_check() {
     }
 }
 
-add_action( 'widgets_init', 'gs_load_widgets' );
+add_action( 'widgets_init', 'gsfc_load_widgets' );
 /**
  * Register widgets for use in the Genesis theme.
  *
  * @since 1.7.0
  */
-function gs_load_widgets() {
+function gsfc_load_widgets() {
 	register_widget( 'GS_Featured_Content' );
 }
 
@@ -90,7 +90,8 @@ class GS_Featured_Content extends WP_Widget {
      *
      * @var object
      */
-    static $widget_instance;
+    public static $widget_instance = array();
+    public static $base = 'featured-content';
     
 	/**
 	 * Holds widget settings defaults, populated in constructor.
@@ -105,68 +106,80 @@ class GS_Featured_Content extends WP_Widget {
 	 * @since 0.1.8
 	 */
 	function __construct() {
-        GS_Featured_Content::$widget_instance = $this;
-		$this->defaults = array(
-            'add_column_classes'      => 0,
-            'archive_link'            => '',
-            'class'                   => '',
-            'column_classes'          => '',
-            'content_limit'           => '',
-            'count'                   => 0,
-            'custom_field'            => '',
-            'excerpt_cutoff'          => '&hellip;',
-            'excerpt_limit'           => 55,
-            'exclude_cat'             => '',
-            'exclude_displayed'       => 0,
-            'exclude_terms'           => '',
-            'extra_format'            => 'ul',
-            'extra_num'               => '',
-            'extra_num'               => '',
-            'extra_posts'             => '',
-            'extra_title'             => '',
-            'extra_title'             => '',
-            'gravatar_alignment'      => '',
-            'gravatar_size'           => '',
-            'image_alignment'         => '',
-            'image_position'          => 'before-title',
-            'image_size'              => '',
-            'include_exclude'         => '',
-            'link_gravatar'           => 0,
-            'link_image'              => 1,
-            'link_image_field'        => '',
-            'link_title'              => 1,
-            'link_title_field'        => '',
-            'meta_key'                => '',
-            'more_from_category'      => '',
-            'more_from_category_text' => __( 'More Posts from this Category', 'gsfc' ),
-            'more_text'               => __( '[Read More...]', 'gsfc' ),
-            'optimize'                => 1,
-            'order'                   => '',
-            'orderby'                 => '',
-            'page_id'                 => '',
-            'paged'                   => '',
-            'post_align'              => '',
-            'post_id'                 => '',
-            'post_info'               => '[post_date] ' . __( 'By', 'gsfc' ) . ' [post_author_posts_link] [post_comments]',
-            'post_meta'               => '[post_categories] [post_tags]',
-            'post_type'               => 'post',
-            'posts_cat'               => '',
-            'posts_num'               => 1,
-            'posts_offset'            => 0,
-            'posts_term'              => '',
-            'show_archive_line'       => 0,
-            'show_byline'             => 0,
-            'show_content'            => '',
-            'show_gravatar'           => 0,
-            'show_image'              => 0,
-            'show_paged'              => '',
-            'show_sticky'             => '',
-            'show_title'              => 0,
-            'title'                   => '',
-            'title_cutoff'            => '&hellip;',
-            'title_limit'             => '',
-            'transients_time'         => 86400,
-		);
+        // GS_Featured_Content::$widget_instance = $this;
+		$this->defaults = apply_filters(
+            'gsfc_defaults',
+            array(
+                'add_column_classes'      => 0,
+                'archive_link'            => '',
+
+                'class'                   => '',
+                'column_classes'          => '',
+                'content_limit'           => '',
+
+                'count'                   => 0,
+                'custom_field'            => '',
+                'excerpt_cutoff'          => '&hellip;',
+                'excerpt_limit'           => 55,
+                'exclude_cat'             => '',
+                'exclude_displayed'       => 0,
+                'exclude_terms'           => '',
+                'extra_format'            => 'ul',
+                'extra_num'               => '',
+                'extra_num'               => '',
+                'extra_posts'             => '',
+                'extra_title'             => '',
+                'extra_title'             => '',
+                'gravatar_alignment'      => '',
+                'gravatar_size'           => '',
+                'image_alignment'         => '',
+                'image_position'          => 'before-title',
+                'image_size'              => '',
+                'include_exclude'         => '',
+                'link_gravatar'           => 0,
+                'link_image'              => 1,
+                'link_image_field'        => '',
+                'link_title'              => 1,
+                'link_title_field'        => '',
+                'meta_key'                => '',
+                'more_from_category'      => '',
+                'more_from_category_text' => __( 'More Posts from this Category', 'gsfc' ),
+                'more_text'               => __( '[Read More...]', 'gsfc' ),
+
+
+
+
+
+                'optimize'                => 1,
+                'order'                   => '',
+                'orderby'                 => '',
+                'page_id'                 => '',
+                'paged'                   => '',
+                'post_align'              => '',
+
+                'post_id'                 => '',
+                'post_info'               => '[post_date] ' . __( 'By', 'gsfc' ) . ' [post_author_posts_link] [post_comments]',
+                'post_meta'               => '[post_categories] [post_tags]',
+                'post_type'               => 'post',
+                'posts_cat'               => '',
+                'posts_num'               => 1,
+                'posts_offset'            => 0,
+                'posts_term'              => '',
+                'show_archive_line'       => 0,
+                'show_byline'             => 0,
+                'show_content'            => '',
+                'show_gravatar'           => 0,
+                'show_image'              => 0,
+                'show_paged'              => '',
+                'show_sticky'             => '',
+                'show_title'              => 0,
+
+                'title'                   => '',
+                'title_cutoff'            => '&hellip;',
+                'title_limit'             => '',
+                'transients_time'         => 86400,
+            )
+        );
 
 		$widget_ops = array(
 			'classname'   => 'featured-content',
@@ -195,8 +208,14 @@ class GS_Featured_Content extends WP_Widget {
     /**
      * Adds all Widget's Actions at once for easy removal.
      */
-    public function add() {
+    public static function add() {
+        //* Form Fields
+        add_action( 'gsfc_output_form_fields', array( 'GS_Featured_Content', 'do_form_fields' ), 10, 2 );
+        
+        //* Post Class
         add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        
+        //* Excerpts
         add_filter( 'excerpt_length', array( 'GS_Featured_Content', 'excerpt_length' ) );
         add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
         
@@ -223,10 +242,23 @@ class GS_Featured_Content extends WP_Widget {
         add_action( 'gsfc_after_loop_reset', array( 'GS_Featured_Content', 'do_extra_posts' ) );
         add_action( 'gsfc_after_loop_reset', array( 'GS_Featured_Content', 'do_more_from_category' ) );
         
-        //* Scripts
+        //* Admin Scripts
         add_action( 'admin_enqueue_scripts', array( 'GS_Featured_Content', 'admin_scripts' ) );
         add_action( 'admin_print_footer_scripts', array( 'GS_Featured_Content', 'admin_footer_script' ) );
-        add_action( 'wp_enqueue_scripts', array( 'GS_Featured_Content', 'enqueue_style' ) );
+        
+        //* Frontend Scripts
+        add_action( 'gsfc_before_widget', array( 'GS_Featured_Content', 'enqueue_style' ) );
+    }
+    
+    /**
+     * Whether current admin page is the widgets page.
+     */
+    public static function is_widgets_page() {
+        if ( ! is_admin() ) return false;
+        
+        $screen = get_current_screen();
+        if ( 'widgets' != $screen->base && 'widgets' != $screen->id ) return false;
+        return true;
     }
     
     /**
@@ -235,7 +267,7 @@ class GS_Featured_Content extends WP_Widget {
      * @param int $length Current excerpt length.
      * @return int Maybe new excerpt length.
      */
-    public function excerpt_more( $length ) {
+    public static function excerpt_more( $length ) {
         if ( GS_Featured_Content::has_value( 'excerpt_cutoff' ) )
             return GS_Featured_Content::$widget_instance['excerpt_cutoff'];
         return $length;
@@ -247,7 +279,7 @@ class GS_Featured_Content extends WP_Widget {
      * @param int $length Current excerpt length.
      * @return int Maybe new excerpt length.
      */
-    public function excerpt_length( $length ) {
+    public static function excerpt_length( $length ) {
         if ( GS_Featured_Content::has_value( 'excerpt_limit' ) )
             return (int)GS_Featured_Content::$widget_instance['excerpt_limit'];
         return $length;
@@ -256,8 +288,10 @@ class GS_Featured_Content extends WP_Widget {
     /**
      * Adds all Widget's Actions at once for easy removal.
      */
-    public function enqueue_style() {
+    public static function enqueue_style( $instance ) {
         if ( is_admin() ) return;
+        
+        if ( empty( $instance['add_column_classes'] ) ) return; 
         $suffix = ( defined( 'WP_DEBUG' ) || defined( 'SCRIPT_DEBUG' ) ) ? '.css' : '.min.css';
         $deps    = defined( 'CHILD_THEME_NAME' ) && CHILD_THEME_NAME ? sanitize_title_with_dashes( CHILD_THEME_NAME ) : 'child-theme';
         wp_enqueue_style( 'gsfc-column-classes', plugins_url( GSFC_PLUGIN_NAME . '/css/column-classes' . $suffix ), array( $deps, ), GSFC_PLUGIN_VERSION );
@@ -491,7 +525,8 @@ class GS_Featured_Content extends WP_Widget {
     /**
      * Form submit script.
      */
-    public function admin_footer_script() { ?>
+    public static function admin_footer_script() { 
+        if ( ! GS_Featured_Content::is_widgets_page() ) return; ?>
 <script type="text/javascript">
 function gsfcSave(t) {
     wpWidgets.save( jQuery(t).closest('div.widget'), 0, 1, 0 );
@@ -504,8 +539,9 @@ function gsfcSave(t) {
      * Form submit script.
      */
     public static function admin_scripts() {
-        $screen = get_current_screen();
-        if ( 'widgets' != $screen->base && 'widgets' != $screen->id ) return;
+
+
+        if ( ! GS_Featured_Content::is_widgets_page() ) return;
         $min = ( defined( 'WP_DEBUG' ) || defined( 'SCRIPT_DEBUG' ) ) ? '.' : '.min.';
         // wp_enqueue_script( 'gsfc-admin-widget', plugins_url( GSFC_PLUGIN_NAME . '/js/gsfc-admin' . $min . 'js' ), array( 'jquery', ), GSFC_PLUGIN_VERSION );
         
@@ -732,9 +768,25 @@ function gsfcSave(t) {
      * @return string
      */
     public static function exclude_post_types( $type ) {
-        $filters = array( '', 'attachment' );
-        $filters = apply_filters( 'gsfc_exclude_post_types', $filters );
+        $filters = array( '', 'attachment', 'soliloquy', );
+        $filters = apply_filters( 'gsfc_exclude_post_types', $filters, GS_Featured_Content::$widget_instance );
         return( !in_array( $type, $filters ) );
+    }
+    
+    /**
+     * Obtains available post types
+     *
+     * @param string $type 'post_type' being tested
+     * @return string
+     */
+    public static function get_post_types( $type = 'names', $args = array(), $operator = 'and' ) {
+        $defaults = array(
+            'public' => true
+        );
+        $args = wp_parse_args( $args, $defaults );
+        $post_types = get_post_types( $args, $type, $operator );
+        $post_types = array_filter( $post_types, array( __CLASS__, 'exclude_post_types' ) );
+        return $post_types;
     }
     
     /**
@@ -775,576 +827,1166 @@ function gsfcSave(t) {
      * @return array $columns Array of form fields.
      */
     protected static function get_form_fields() {
+        $box_1 = array(
+            'post_type'               => array(
+                'label'       => __( 'Content Type', 'gsfc' ),
+                'description' => '',
+                'type'        => 'post_type_select',
+                'requires'    => '',
+            ),
+            'page_id'                 => array(
+                'label'       => __( 'Page', 'gsfc' ),
+                'description' => '',
+                'type'        => 'page_select',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    false
+                ),
+            ),
+            'posts_term'              => array(
+                'label'       => __( 'Taxonomy and Terms', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select_taxonomy',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'exclude_terms'           => array(
+                'label'       => sprintf( __( 'Exclude Terms by ID %s (comma separated list)', 'gsfc' ), '<br />' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'include_exclude'         => array(
+                'label'       => __( 'Include/Exclude', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    ''        => __( 'Select', 'gsfc' ),
+                    'include' => __( 'Include', 'gsfc' ),
+                    'exclude' => __( 'Exclude', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'page_id',
+                    '',
+                    false
+                ),
+            ),
+            'post_id'                 => array(
+                'label'       => sprintf( '<span class="gs-post-type-label">%s</span>', GS_Featured_Content::$widget_instance['post_type'] ) . ' ' . __( 'ID', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'include_exclude',
+                    '',
+                    true
+                ),
+            ),
+            'posts_num'               => array(
+                'label'       => __( 'Number of Posts to Show', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'page_id',
+                    '',
+                    false
+                ),
+            ),
+            'posts_offset'            => array(
+                'label'       => __( 'Number of Posts to Offset', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'page_id',
+                    '',
+                    false
+                ),
+            ),
+            'orderby'                 => array(
+                'label'       => __( 'Order By', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    'date'           => __( 'Date'              , 'gsfc' ),
+                    'title'          => __( 'Title'             , 'gsfc' ),
+                    'parent'         => __( 'Parent'            , 'gsfc' ),
+                    'ID'             => __( 'ID'                , 'gsfc' ),
+                    'comment_count'  => __( 'Comment Count'     , 'gsfc' ),
+                    'rand'           => __( 'Random'            , 'gsfc' ),
+                    'meta_value'     => __( 'Meta Value'        , 'gsfc' ),
+                    'meta_value_num' => __( 'Numeric Meta Value', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'page_id',
+                    '',
+                    false
+                ),
+            ),
+            'order'                   => array(
+                'label'       => __( 'Sort Order', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    'DESC'    => __( 'Descending (3, 2, 1)', 'gsfc' ),
+                    'ASC'     => __( 'Ascending (1, 2, 3)' , 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'page_id',
+                    '',
+                    false
+                ),
+            ),
+            'meta_key'               => array(
+                'label'       => __( 'Meta Key', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'orderby',
+                    'meta_value',
+                    false
+                ),
+            ),
+            'paged'                   => array(
+                'label'       => __( 'Work with Pagination', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'show_paged'              => array(
+                'label'       => __( 'Show Page Navigation', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'exclude_displayed'         => array(
+                'label'       => __( 'Exclude Previously Displayed Posts?', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+        );
+        
+        $box_2 = array(
+            'show_gravatar'           => array(
+                'label'       => __( 'Show Author Gravatar', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'gravatar_size'          => array(
+                'label'       => __( 'Gravatar Size', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    '45'      => __( 'Small (45px)'       , 'gsfc' ),
+                    '65'      => __( 'Medium (65px)'      , 'gsfc' ),
+                    '85'      => __( 'Large (85px)'       , 'gsfc' ),
+                    '125'     => __( 'Extra Large (125px)', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_gravatar',
+                    '',
+                    true
+                ),
+            ),
+            'link_gravatar'          => array(
+                'label'       => __( 'Link Gravatar', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    ''            => __( 'Do not link gravatar'  , 'gsfc' ),
+                    'archive'     => __( 'Link to author archive', 'gsfc' ),
+                    'website'     => __( 'Link to author website', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_gravatar',
+                    '',
+                    true
+                ),
+            ),
+            'gravatar_alignment'      => array(
+                'label'       => __( 'Gravatar Alignment', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    ''           => __( 'None' , 'gsfc' ),
+                    'alignleft'  => __( 'Left' , 'gsfc' ),
+                    'alignright' => __( 'Right', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_gravatar',
+                    '',
+                    true
+                ),
+            ),
+        );
+        
+        $box_3 = array(
+            'class'                 => array(
+                'label'       => __( 'Class', 'gsfc' ),
+                'description' => __( 'Fill in this field if you want to add a custom post class.', 'gsfc' ),
+                'type'        => 'text',
+                'requires'    => '',
+            ),
+            'add_column_classes'     => array(
+                'label'       => __( 'Need to add column classes?', 'gsfc' ),
+                'description' => 'Check to add column classes to your site (supports fifths).',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'column_class'           => array(
+                'label'       => __( 'Column Class', 'gsfc' ),
+                'description' => __( 'Fill in this field if you want to add a custom post class. Will automagically add <code>first</code> where appropriate.', 'gsfc' ),
+                'type'        => 'select',
+                'options'     => array(
+                    ''              => __( 'Select Class', 'gsfc' ),
+                    'one-half'      => __( 'One Half', 'gsfc' ),
+                    'one-third'     => __( 'One Third', 'gsfc' ),
+                    'one-fourth'    => __( 'One Fourth', 'gsfc' ),
+                    'one-fifth'     => __( 'One Fifth', 'gsfc' ),
+                    'one-sixith'    => __( 'One Sixth', 'gsfc' ),
+                    'two-thirds'    => __( 'Two Thirds', 'gsfc' ),
+                    'three-fourths' => __( 'Three Fourths', 'gsfc' ),
+                    'two-fifths'    => __( 'Two Fifths', 'gsfc' ),
+                    'three-fifths'  => __( 'Three Fifths', 'gsfc' ),
+                    'four-fifths'   => __( 'Four Fifths', 'gsfc' ),
+                    'five-sixths'   => __( 'Five Sixths', 'gsfc' ),
+                ),
+                'requires'    => '',
+            ),
+        );
+        
+        $box_4 = array(
+            'optimize'               => array(
+                'label'       => __( 'Optimize?', 'gsfc' ),
+                'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set Instance Identification Field below.',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'optimize_more_1' => array(
+                'description' => 'Your main widget transient id: gsfc_main_' . GS_Featured_Content::$widget_instance['custom_field'],
+                'type'        => 'description',
+                'requires'    => array(
+                    'optimize',
+                    '',
+                    true
+                ),
+            ),
+            'optimize_more_2' => array(
+                'description' => 'Your extra posts transient id: gsfc_extra_posts_' . GS_Featured_Content::$widget_instance['custom_field'],
+                'type'        => 'description',
+                'requires'    => array(
+                    'optimize',
+                    '',
+                    true
+                ),
+            ),
+            'delete_transients'      => array(
+                'label'       => __( 'Delete Transients?', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'transients_time'         => array(
+                'label'       => __( 'Set Transients Expiration (seconds)', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => '',
+            ),
+            'custom_field'            => array(
+                'label'       => __( 'Instance Identification Field', 'gsfc' ),
+                'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
+                'type'        => 'text',
+                'requires'    => '',
+            ),
+        );
+        
+        $box_5 = array(
+            'show_image'              => array(
+                'label'       => __( 'Show Featured Image', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'link_image'              => array(
+                'label'       => __( 'Image Link', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    '1' => __( 'Link Image to Post', 'gsfc' ),
+                    '2' => __( 'Don\'t Link Image' , 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_image',
+                    '',
+                    true
+                ),
+            ),
+            'link_image_field'              => array(
+                'label'       => __( 'Link ( Defaults to Permalink )'),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'link_image',
+                    '1',
+                    false
+                ),
+            ),
+            'image_size'              => array(
+                'label'       => __( 'Image Size', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => GS_Featured_Content::get_image_size_options(),
+                'requires'    => array(
+                    'show_image',
+                    '',
+                    true
+                ),
+            ),
+            'image_position'          => array(
+                'label'       => __( 'Image Placement', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    'before-title'  => __( 'Before Title' , 'gsfc' ),
+                    'after-title'   => __( 'After Title'  , 'gsfc' ),
+                    'after-content' => __( 'After Content', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_image',
+                    '',
+                    true
+                ),
+            ),
+            'image_alignment'         => array(
+                'label'       => __( 'Image Alignment', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    ''            => __( 'None'  , 'gsfc' ),
+                    'alignleft'   => __( 'Left'  , 'gsfc' ),
+                    'alignright'  => __( 'Right' , 'gsfc' ),
+                    'aligncenter' => __( 'Center', 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_image',
+                    '',
+                    true
+                ),
+            ),
+        );
+        
+        //* Box 2
+        $box_6 = array(
+            'show_title'              => array(
+                'label'       => __( 'Show Post Title', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'title_limit'             => array(
+                'label'       => __( 'Limit title to', 'gsfc' ),
+                'description' => __( ' characters', 'gsfc' ),
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'show_title',
+                    '',
+                    true
+                ),
+            ),
+            'title_cutoff'             => array(
+                'label'       => __( 'Title Cutoff Symbol', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'show_title',
+                    '',
+                    true
+                ),
+            ),
+            'link_title'              => array(
+                'label'       => __( 'Link Title', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    '1' => __( 'Link Title to Post', 'gsfc' ),
+                    '2' => __( 'Don\'t Link Title' , 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'show_title',
+                    '',
+                    true
+                ),
+            ),
+            'link_title_field'              => array(
+                'label'       => __( 'Link (Defaults to Permalink)', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'link_title',
+                    '1',
+                    false
+                ),
+            ),
+            'show_byline'             => array(
+                'label'       => __( 'Show Post Info', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => '',
+            ),
+            'post_info'               => array(
+                'label'       => __( 'Post Info', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'show_byline',
+                    '',
+                    true
+                ),
+            ),
+            'show_content'            => array(
+                'label'       => __( 'Content Type', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    'content'       => __( 'Show Content'      , 'gsfc' ),
+                    'excerpt'       => __( 'Show Excerpt'      , 'gsfc' ),
+                    'content-limit' => __( 'Show Content Limit', 'gsfc' ),
+                    ''              => __( 'No Content'        , 'gsfc' ),
+                ),
+                'requires'    => '',
+            ),
+            'content_limit'           => array(
+                'label'       => __( 'Limit content to', 'gsfc' ),
+                'description' => __( ' characters', 'gsfc' ),
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'show_content',
+                    'content-limit',
+                    false
+                ),
+            ),
+            'excerpt_limit'             => array(
+                'label'       => __( 'Limit excerpt to', 'gsfc' ),
+                'description' => __( ' words', 'gsfc' ),
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'show_content',
+                    'excerpt',
+                    false
+                ),
+            ),
+            'excerpt_cutoff'             => array(
+                'label'       => __( 'Title Cutoff Symbol', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'show_content',
+                    'excerpt',
+                    false
+                ),
+            ),
+            'show_archive_line'       => array(
+                'label'       => __( 'Show Post Meta', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+
+            'post_meta'               => array(
+                'label'       => __( 'Post Meta', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'show_archive_line',
+                    '',
+                    true
+                ),
+            ),
+            'more_text'               => array(
+                'label'       => __( 'More Text (if applicable)', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => '',
+            ),
+        );
+        
+        $box_7 = array(
+            'extra_posts'             => array(
+                'label'       => __( 'Display List of Additional Posts', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'extra_title'             => array(
+                'label'       => __( 'Title', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'extra_posts',
+                    '',
+                    true
+                ),
+            ),
+            'extra_num'               => array(
+                'label'       => __( 'Number of Posts to Show', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text_small',
+                'requires'    => array(
+                    'extra_posts',
+                    '',
+                    true
+                ),
+            ),
+            'extra_format'            => array(
+                'label'       => __( 'Extra Post Format', 'gsfc' ),
+                'description' => '',
+                'type'        => 'select',
+                'options'     => array(
+                    'ul'        => __( 'Unordered List', 'gsfc' ),
+                    'ol'        => __( 'Ordered List'  , 'gsfc' ),
+                    'drop_down' => __( 'Drop Down'     , 'gsfc' ),
+                ),
+                'requires'    => array(
+                    'extra_posts',
+                    '',
+                    true
+                ),
+            ),
+            'more_from_category'      => array(
+                'label'       => __( 'Show Category Archive Link', 'gsfc' ),
+                'description' => '',
+                'type'        => 'checkbox',
+                'requires'    => array(
+                    'post_type',
+                    'page',
+                    true
+                ),
+            ),
+            'more_from_category_text' => array(
+                'label'       => __( 'Link Text', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'more_from_category',
+                    '',
+                    true
+                ),
+            ),
+            'archive_link'            => array(
+                'label'       => __( 'Fill in this value with a URL if you wish to display an archive link when showing all terms or to override the normal archive link to another URL', 'gsfc' ),
+                'description' => '',
+                'type'        => 'text',
+                'requires'    => array(
+                    'more_from_category',
+                    '',
+                    true
+                ),
+            ),
+        );
+        
         $columns = array(
 			'col1' => array(
-                //* Box 1
-				array(
-					'post_type'               => array(
-						'label'       => __( 'Post Type', 'gsfc' ),
-						'description' => '',
-						'type'        => 'post_type_select',
-						'requires'    => '',
-					),
-					'page_id'                 => array(
-						'label'       => __( 'Page', 'gsfc' ),
-						'description' => '',
-						'type'        => 'page_select',
-						'requires'    => array(
-							'post_type',
-							'page',
-							false
-						),
-					),
-					'posts_term'              => array(
-						'label'       => __( 'Taxonomy and Terms', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select_taxonomy',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-					'exclude_terms'           => array(
-						'label'       => sprintf( __( 'Exclude Terms by ID %s (comma separated list)', 'gsfc' ), '<br />' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-					'include_exclude'         => array(
-						'label'       => __( 'Include/Exclude', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							''        => __( 'Select', 'gsfc' ),
-							'include' => __( 'Include', 'gsfc' ),
-							'exclude' => __( 'Exclude', 'gsfc' ),
-						),
-						'requires'    => array(
-							'page_id',
-							'',
-							false
-						),
-					),
-					'post_id'                 => array(
-						'label'       => sprintf( '<span class="gs-post-type-label">%s</span>', $instance['post_type'] ) . ' ' . __( 'ID', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'include_exclude',
-							'',
-							true
-						),
-					),
-					'posts_num'               => array(
-						'label'       => __( 'Number of Posts to Show', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text_small',
-						'requires'    => array(
-							'page_id',
-							'',
-							false
-						),
-					),
-					'posts_offset'            => array(
-						'label'       => __( 'Number of Posts to Offset', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text_small',
-						'requires'    => array(
-							'page_id',
-							'',
-							false
-						),
-					),
-					'orderby'                 => array(
-						'label'       => __( 'Order By', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'date'           => __( 'Date'              , 'gsfc' ),
-							'title'          => __( 'Title'             , 'gsfc' ),
-							'parent'         => __( 'Parent'            , 'gsfc' ),
-							'ID'             => __( 'ID'                , 'gsfc' ),
-							'comment_count'  => __( 'Comment Count'     , 'gsfc' ),
-							'rand'           => __( 'Random'            , 'gsfc' ),
-							'meta_value'     => __( 'Meta Value'        , 'gsfc' ),
-							'meta_value_num' => __( 'Numeric Meta Value', 'gsfc' ),
-						),
-						'requires'    => array(
-							'page_id',
-							'',
-							false
-						),
-					),
-					'order'                   => array(
-						'label'       => __( 'Sort Order', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'DESC'    => __( 'Descending (3, 2, 1)', 'gsfc' ),
-							'ASC'     => __( 'Ascending (1, 2, 3)' , 'gsfc' ),
-						),
-						'requires'    => array(
-							'page_id',
-							'',
-							false
-						),
-					),
-					'meta_key'               => array(
-						'label'       => __( 'Meta Key', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'orderby',
-							'meta_value',
-							false
-						),
-					),
-					'paged'                   => array(
-						'label'       => __( 'Work with Pagination', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-					'show_paged'              => array(
-						'label'       => __( 'Show Page Navigation', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-                    'exclude_displayed'         => array(
-						'label'       => __( 'Exclude Previously Displayed Posts?', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-				),
-                
-                //* Box 2
-				array(
-					'show_gravatar'           => array(
-						'label'       => __( 'Show Author Gravatar', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-					'gravatar_size'          => array(
-						'label'       => __( 'Gravatar Size', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'45'      => __( 'Small (45px)'       , 'gsfc' ),
-							'65'      => __( 'Medium (65px)'      , 'gsfc' ),
-							'85'      => __( 'Large (85px)'       , 'gsfc' ),
-							'125'     => __( 'Extra Large (125px)', 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_gravatar',
-							'',
-							true
-						),
-					),
-					'link_gravatar'          => array(
-						'label'       => __( 'Link Gravatar', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							''            => __( 'Do not link gravatar'  , 'gsfc' ),
-							'archive'     => __( 'Link to author archive', 'gsfc' ),
-							'website'     => __( 'Link to author website', 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_gravatar',
-							'',
-							true
-						),
-					),
-					'gravatar_alignment'      => array(
-						'label'       => __( 'Gravatar Alignment', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							''           => __( 'None' , 'gsfc' ),
-							'alignleft'  => __( 'Left' , 'gsfc' ),
-							'alignright' => __( 'Right', 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_gravatar',
-							'',
-							true
-						),
-					),
-				),
-                //* Box 3
-				array(
-					'class'                  => array(
-						'label'       => __( 'Class', 'gsfc' ),
-						'description' => __( 'Fill in this field if you want to add a custom post class.', 'gsfc' ),
-						'type'        => 'text',
-						'requires'    => '',
-					),
-                    'add_column_classes'     => array(
-						'label'       => __( 'Need to add column classes?', 'gsfc' ),
-						'description' => 'Check to add column classes to your site (supports fifths).',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-                    'column_class'           => array(
-						'label'       => __( 'Column Class', 'gsfc' ),
-						'description' => __( 'Fill in this field if you want to add a custom post class. Will automagically add <code>first</code> where appropriate.', 'gsfc' ),
-						'type'        => 'select',
-						'options'     => array(
-							''              => __( 'Select Class', 'gsfc' ),
-							'one-half'      => __( 'One Half', 'gsfc' ),
-							'one-third'     => __( 'One Third', 'gsfc' ),
-							'one-fourth'    => __( 'One Fourth', 'gsfc' ),
-							'one-fifth'     => __( 'One Fifth', 'gsfc' ),
-							'one-sixith'    => __( 'One Sixth', 'gsfc' ),
-							'two-thirds'    => __( 'Two Thirds', 'gsfc' ),
-							'three-fourths' => __( 'Three Fourths', 'gsfc' ),
-							'two-fifths'    => __( 'Two Fifths', 'gsfc' ),
-							'three-fifths'  => __( 'Three Fifths', 'gsfc' ),
-							'four-fifths'   => __( 'Four Fifths', 'gsfc' ),
-							'five-sixths'   => __( 'Five Sixths', 'gsfc' ),
-						),
-						'requires'    => '',
-					),
-				),
-                //* Box 5
-				array(
-					'optimize'               => array(
-						'label'       => __( 'Optimize?', 'gsfc' ),
-						'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set custom field.',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-                    'delete_transients'      => array(
-						'label'       => __( 'Delete Transients?', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-                    'transients_time'         => array(
-						'label'       => __( 'Set Transients Expiration (seconds)', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => '',
-					),
-                    'custom_field'            => array(
-						'label'       => __( 'Instance Identification Field', 'gsfc' ),
-						'description' => __( 'Fill in this field if you need to test against an $instance value not included in the form', 'gsfc' ),
-						'type'        => 'text',
-						'requires'    => '',
-					),
-				),
-			),
-			'col2' => array(
-                //* Box 1
-				array(
-					'show_image'              => array(
-						'label'       => __( 'Show Featured Image', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-					'link_image'              => array(
-						'label'       => __( 'Image Link', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'1' => __( 'Link Image to Post', 'gsfc' ),
-							'2' => __( 'Don\'t Link Image' , 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_image',
-							'',
-							true
-						),
-					),
-					'link_image_field'              => array(
-						'label'       => __( 'Link ( Defaults to Permalink )'),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'link_image',
-							'1',
-							false
-						),
-					),
-					'image_size'              => array(
-						'label'       => __( 'Image Size', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => GS_Featured_Content::get_image_size_options(),
-						'requires'    => array(
-							'show_image',
-							'',
-							true
-						),
-					),
-					'image_position'          => array(
-						'label'       => __( 'Image Placement', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'before-title'  => __( 'Before Title' , 'gsfc' ),
-							'after-title'   => __( 'After Title'  , 'gsfc' ),
-							'after-content' => __( 'After Content', 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_image',
-							'',
-							true
-						),
-					),
-					'image_alignment'         => array(
-						'label'       => __( 'Image Alignment', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							''            => __( 'None'  , 'gsfc' ),
-							'alignleft'   => __( 'Left'  , 'gsfc' ),
-							'alignright'  => __( 'Right' , 'gsfc' ),
-							'aligncenter' => __( 'Center', 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_image',
-							'',
-							true
-						),
-					),
-				),
-                //* Box 2
-				array(
-					'show_title'              => array(
-						'label'       => __( 'Show Post Title', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-					'title_limit'             => array(
-						'label'       => __( 'Limit title to', 'gsfc' ),
-						'description' => __( ' characters', 'gsfc' ),
-						'type'        => 'text_small',
-						'requires'    => array(
-							'show_title',
-							'',
-							true
-						),
-					),
-					'title_cutoff'             => array(
-						'label'       => __( 'Title Cutoff Symbol', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text_small',
-						'requires'    => array(
-							'show_title',
-							'',
-							true
-						),
-					),
-					'link_title'              => array(
-						'label'       => __( 'Link Title', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'1' => __( 'Link Title to Post', 'gsfc' ),
-							'2' => __( 'Don\'t Link Title' , 'gsfc' ),
-						),
-						'requires'    => array(
-							'show_title',
-							'',
-							true
-						),
-					),
-					'link_title_field'              => array(
-						'label'       => __( 'Link (Defaults to Permalink)', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'link_title',
-							'1',
-							false
-						),
-					),
-					'show_byline'             => array(
-						'label'       => __( 'Show Post Info', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => '',
-					),
-					'post_info'               => array(
-						'label'       => __( 'Post Info', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'show_byline',
-							'',
-							true
-						),
-					),
-					'show_content'            => array(
-						'label'       => __( 'Content Type', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'content'       => __( 'Show Content'      , 'gsfc' ),
-							'excerpt'       => __( 'Show Excerpt'      , 'gsfc' ),
-							'content-limit' => __( 'Show Content Limit', 'gsfc' ),
-							''              => __( 'No Content'        , 'gsfc' ),
-						),
-						'requires'    => '',
-					),
-					'content_limit'           => array(
-						'label'       => __( 'Limit content to', 'gsfc' ),
-						'description' => __( ' characters', 'gsfc' ),
-						'type'        => 'text_small',
-						'requires'    => array(
-							'show_content',
-							'content-limit',
-							false
-						),
-					),
-                    'excerpt_limit'             => array(
-						'label'       => __( 'Limit excerpt to', 'gsfc' ),
-						'description' => __( ' words', 'gsfc' ),
-						'type'        => 'text_small',
-						'requires'    => array(
-							'show_content',
-							'excerpt',
-							false
-						),
-					),
-					'excerpt_cutoff'             => array(
-						'label'       => __( 'Title Cutoff Symbol', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text_small',
-						'requires'    => array(
-							'show_content',
-							'excerpt',
-							false
-						),
-					),
-					'show_archive_line'       => array(
-						'label'       => __( 'Show Post Meta', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
 
-					'post_meta'               => array(
-						'label'       => __( 'Post Meta', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'show_archive_line',
-							'',
-							true
-						),
-					),
-					'more_text'               => array(
-						'label'       => __( 'More Text (if applicable)', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => '',
-					),
-				),
-                //* Box 3
-				array(
-					'extra_posts'             => array(
-						'label'       => __( 'Display List of Additional Posts', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-					'extra_title'             => array(
-						'label'       => __( 'Title', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'extra_posts',
-							'',
-							true
-						),
-					),
-					'extra_num'               => array(
-						'label'       => __( 'Number of Posts to Show', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text_small',
-						'requires'    => array(
-							'extra_posts',
-							'',
-							true
-						),
-					),
-					'extra_format'            => array(
-						'label'       => __( 'Extra Post Format', 'gsfc' ),
-						'description' => '',
-						'type'        => 'select',
-						'options'     => array(
-							'ul'        => __( 'Unordered List', 'gsfc' ),
-							'ol'        => __( 'Ordered List'  , 'gsfc' ),
-							'drop_down' => __( 'Drop Down'     , 'gsfc' ),
-						),
-						'requires'    => array(
-							'extra_posts',
-							'',
-							true
-						),
-					),
-					'more_from_category'      => array(
-						'label'       => __( 'Show Category Archive Link', 'gsfc' ),
-						'description' => '',
-						'type'        => 'checkbox',
-						'requires'    => array(
-							'post_type',
-							'page',
-							true
-						),
-					),
-					'more_from_category_text' => array(
-						'label'       => __( 'Link Text', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'more_from_category',
-							'',
-							true
-						),
-					),
-					'archive_link'            => array(
-						'label'       => __( 'Fill in this value with a URL if you wish to display an archive link when showing all terms or to override the normal archive link to another URL', 'gsfc' ),
-						'description' => '',
-						'type'        => 'text',
-						'requires'    => array(
-							'more_from_category',
-							'',
-							true
-						),
-					),
-				),
-			),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                $box_1,
+                $box_2,
+                $box_3,
+                $box_4,
+            ),
+			'col2' => array(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                $box_5,
+                $box_6,
+                $box_7,
+            ),
 		);
-        return apply_filters( 'gsfc_form_fields', $columns, $instance );
+        return apply_filters( 'gsfc_form_fields', $columns, GS_Featured_Content::$widget_instance, compact( "box_1", "box_2", "box_3", "box_4", "box_5", "box_6", "box_7" ) );
     }
     
     /**
@@ -1392,25 +2034,33 @@ function gsfcSave(t) {
         return $random_string;
     }
     
-	/**
-	 * Echo the settings update form.
-	 *
-	 * @since 0.1.8
-	 *
-	 * @param array $instance Current settings
-	 */
-	public function form( $instance ) {
-        GS_Featured_Content::$widget_instance &= $instance;
-        
-		//* Merge with defaults
-		$instance = wp_parse_args( (array) $instance, $this->defaults );
-        
-        //* Get Columns
-        $columns = GS_Featured_Content::get_form_fields();
-        
-        //* Title Field
-        echo '<p><label for="'. $this->get_field_id( 'title' ) .'">'. __( 'Title', 'gsfc' ) .':</label><input type="text" id="'. $this->get_field_id( 'title' ) .'" name="'. $this->get_field_name( 'title' ) .'" value="'. esc_attr( $instance['title'] ) .'" style="width:99%;" /></p>';
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Outputs the column fields.
+     * 
+     * @param array $instance Current settings.
+     * @param array $columns Array of fields to output.
+     * @param object $obj Current Widget Object. 
+     */
+    public static function do_columns( $instance, $columns, $obj ) {
         echo '<div class="gsfc-widget-body">';
         foreach( $columns as $column => $boxes ) {
 			if( 'col1' == $column )
@@ -1419,47 +2069,64 @@ function gsfcSave(t) {
                 $col_class = 'gsfc-right-box';
             printf( '<div class="%s">', $col_class );
             
-			foreach( $boxes as $box ){
-				echo '<div class="gsfc-box">';
+			foreach( $boxes as $box ) {
+                $box_style = isset( $box['box_requires'] ) ? ' style="'. GS_Featured_Content::get_display_option( $instance, $box['box_requires'][0], $box['box_requires'][1], $box['box_requires'][2] ) .'"' : '';
+				printf( '<div class="gsfc-box"%s>', $box_style );
 				
-				foreach( $box as $field_id => $args ){
+				foreach( $box as $field_id => $args ) {
                     $data  = $args['requires'] ? GS_Featured_Content::data_implode( $args['requires'] ) : '';
-                    $style = $args['requires'] ? ' style="'. GS_Featured_Content::get_display_option( $instance, $args['requires'][0], $args['requires'][1], $args['requires'][2] ) .'"' : '';
-                echo '<div ' . $style . ' class="' . $args['type'] . ' ' . $field_id . '" data-requires-key="' . $args['requires'][0] . '" data-requires-value="' . $args['requires'][1] . '" >';
+                    
+                    if ( isset( $args['requires'] ) && is_array( $args['requires'] ) && 3 == count( $args['requires'] ) ) {
+                        $style = ' style="'. GS_Featured_Content::get_display_option( $instance, $args['requires'][0], $args['requires'][1], $args['requires'][2] ) .'"';
+                        echo '<div ' . $style . ' class="' . $args['type'] . ' ' . $field_id . '" data-requires-key="' . $args['requires'][0] . '" data-requires-value="' . $args['requires'][1] . '" >';
+                    } else {
+                        $style = '';
+                        echo '<div ' . $style . ' class="' . $args['type'] . ' ' . $field_id . '" >';
+                    }
+                    
 					switch( $args['type'] ) {
 						case 'post_type_select' :
                             printf( '<label for="%1$s">%2$s</label><select onchange="gsfcSave(this)" id="%1$s" name="%3$s">',
-                                $this->get_field_id( $field_id ),
+                                $obj->get_field_id( $field_id ),
                                 $args['label'],
-                                $this->get_field_name( $field_id )
+                                $obj->get_field_name( $field_id )
+                            );
+                            
+                            printf( '<option class="gs-pad-left-10" value="any" %s>%s</option>',
+                                selected( esc_attr( $post_type ), $instance['post_type'], false ),
+                                __( 'Any', 'gsfc' )
                             );
 							
-							$args = array(
-								'public' => true
-							);
-							$post_types = get_post_types( $args, 'names', 'and' );
-							$post_types = array_filter( $post_types, array( __CLASS__, 'exclude_post_types' ) );
 
-							foreach ( $post_types as $post_type ) 
+
+
+							$post_types = GS_Featured_Content::get_post_types();
+
+
+
+							foreach ( $post_types as $post_type ) {
+                                $pt = get_post_type_object( $post_type );
                                 printf( '<option class="gs-pad-left-10" value="%s" %s>%s</option>',
                                     esc_attr( $post_type ),
                                     selected( esc_attr( $post_type ), $instance['post_type'], false ),
-                                    esc_attr( $post_type )
+
+                                    esc_attr( $pt->label )
                                 );
+                            }
                                 
-                            printf( '<option class="gs-pad-left-10" value="any" %s>%s</option>',
-                                selected( esc_attr( $post_type ), $instance['post_type'], false ),
-                                __( 'any', 'gsfc' )
-                            );
-								
+
+
+
+
+
 							echo '</select>';
 							break;
 
                         case 'page_select' :
                             printf( '<label for="%1$s">%2$s:</label><select id="%1$s" name="%3$s" onchange="gsfcSave(this)"><option value="" %4$s>%5$s</option>',
-                                $this->get_field_id( $field_id ),
+                                $obj->get_field_id( $field_id ),
                                 $args['label'],
-                                $this->get_field_name( $field_id ),
+                                $obj->get_field_name( $field_id ),
                                 selected( '', $instance['page_id'], false ),
                                 attribute_escape( __( 'Select page', 'gsfc' ) )
                             );
@@ -1477,9 +2144,9 @@ function gsfcSave(t) {
 						
 						case 'select_taxonomy' :
                             printf( '<label for="%1$s">%2$s:</label><select id="%1$s" name="%3$s" onchange="gsfcSave(this)"><option value="" class="gs-pad-left-10" %4$s>%5$s</option>',
-                                $this->get_field_id( $field_id ),
+                                $obj->get_field_id( $field_id ),
                                 $args['label'],
-                                $this->get_field_name( $field_id ),
+                                $obj->get_field_name( $field_id ),
                                 selected( '', $instance['posts_term'], false ),
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
@@ -1513,20 +2180,20 @@ function gsfcSave(t) {
 							break;
 							
 						case 'text' :
-							echo $args['description'] ? sprintf( '<p>%s</p>', $args['description'] ) : '';
-                            printf( '<label for="%1$s">%2$s:</label>', $this->get_field_id( $field_id ), $args['label'] );
+							echo $args['description'] ? wpautop( $args['description'] ) : '';
+                            printf( '<label for="%1$s">%2$s:</label>', $obj->get_field_id( $field_id ), $args['label'] );
                             printf( '<input type="text" id="%s" name="%s" value="%s" class="gs-widefat" />',
-                                $this->get_field_id( $field_id ),
-                                $this->get_field_name( $field_id ),
+                                $obj->get_field_id( $field_id ),
+                                $obj->get_field_name( $field_id ),
                                 esc_attr( $instance[$field_id] )
                             );
 							break;
 						
 						case 'text_small' :
-                            printf( '<label for="%1$s">%2$s:</label>', $this->get_field_id( $field_id ), $args['label'] );
+                            printf( '<label for="%1$s">%2$s:</label>', $obj->get_field_id( $field_id ), $args['label'] );
                             printf( '<input type="text" class="gsfc-small" id="%s" name="%s" value="%s" />%s',
-                                $this->get_field_id( $field_id ),
-                                $this->get_field_name( $field_id ),
+                                $obj->get_field_id( $field_id ),
+                                $obj->get_field_name( $field_id ),
                                 esc_attr( $instance[$field_id] ),
                                 $args['description']
                             );
@@ -1535,9 +2202,9 @@ function gsfcSave(t) {
 							
 						case 'select' :
                             printf( '<label for="%1$s">%2$s:</label><select id="%1$s" name="%3$s" onchange="gsfcSave(this)">',
-                                $this->get_field_id( $field_id ),
+                                $obj->get_field_id( $field_id ),
                                 $args['label'],
-                                $this->get_field_name( $field_id )
+                                $obj->get_field_name( $field_id )
                             );
                             
                             foreach( $args['options'] as $value => $label )
@@ -1552,13 +2219,20 @@ function gsfcSave(t) {
 							
 						case 'checkbox' :
                             printf( '<input type="checkbox" id="%1$s" name="%2$s" value="1" class="widget-control-save" %3$s />',
-                                $this->get_field_id( $field_id ),
-                                $this->get_field_name( $field_id ),
+                                $obj->get_field_id( $field_id ),
+                                $obj->get_field_name( $field_id ),
                                 checked( 1, $instance[$field_id], false )
                                 // $class
                             );
-                            printf( '<label for="%1$s">%2$s</label>', $this->get_field_id( $field_id ), $args['label'] );
+                            printf( '<label for="%1$s">%2$s</label>', $obj->get_field_id( $field_id ), $args['label'] );
+                            echo $args['description'] ? wpautop( $args['description'] ) : '';
 							break;
+                        case 'p' :
+                        case 'description' :
+                            echo $args['description'] ? wpautop( $args['description'] ) : '';
+                            break;
+                        default:
+                            do_action( 'gsfc_custom_field_' . $args['type'], $instance, $obj ); 
 					}
                     echo '</div>';
 
@@ -1571,6 +2245,52 @@ function gsfcSave(t) {
 				
 		}
         echo '</div>';
+    }
+    
+    /**
+	 * Outputs the form fields.
+	 *
+	 * @uses do_columns()
+	 *
+	 * @param array $instance Current settings
+	 * @param array $object Current GS_Featured_Content object
+	 */
+    public static function do_form_fields( $instance, $object ) {
+        GS_Featured_Content::$widget_instance = $instance;
+        
+        //* Get Columns
+        $columns = GS_Featured_Content::get_form_fields();
+        GS_Featured_Content::do_columns( $instance, $columns, $object );
+        
+    }
+    
+	/**
+	 * Echo the settings update form.
+	 *
+	 * @since 0.1.8
+	 *
+	 * @param array $instance Current settings
+	 */
+	public function form( $instance ) {
+        
+		//* Merge with defaults
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
+        GS_Featured_Content::$widget_instance = $instance;
+        
+        //* Title Field
+        echo '<p><label for="'. $this->get_field_id( 'title' ) .'">'. __( 'Title', 'gsfc' ) .':</label><input type="text" id="'. $this->get_field_id( 'title' ) .'" name="'. $this->get_field_name( 'title' ) .'" value="'. esc_attr( $instance['title'] ) .'" style="width:99%;" /></p>';
+        
+        do_action( 'gsfc_after_title_form_field', $instance, $this ); 
+        do_action( 'gsfc_before_form_fields', $instance, $this ); 
+        
+        echo '<div class="gsfc-widget-wrapper">';
+        
+        do_action( 'gsfc_output_form_fields', $instance, $this );
+        // GS_Featured_Content::$widget_instance = $instance;
+        
+        echo '</div>';
+        
+        do_action( 'gsfc_after_form_fields', $instance, $this ); 
         
     }
     
@@ -1582,7 +2302,7 @@ function gsfcSave(t) {
      * @param mixed $value Value to test against.
      * @param boolean $standard Echo standard return false for oposite.
      */
-    protected static function get_display_option( $instance, $option='', $value='', $standard=true ) {
+    public static function get_display_option( $instance, $option='', $value='', $standard=true ) {
         $display = '';
         if ( is_array( $option ) ) {
             foreach ( $option as $key ) {
@@ -1627,7 +2347,9 @@ function gsfcSave(t) {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
-        GS_Featured_Content::$widget_instance = $instance;
+
+
+        GS_Featured_Content::$widget_instance &= $instance;
 		global $wp_query, $_genesis_displayed_ids, $gs_counter;
 
 		extract( $args );
@@ -1639,6 +2361,7 @@ function gsfcSave(t) {
 		//* Merge with defaults
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
+        do_action( 'gsfc_before_widget', $instance );
 		echo $before_widget;
         add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
         
@@ -1649,7 +2372,9 @@ function gsfcSave(t) {
 
 		//* Set up the author bio
 		if ( ! empty( $instance['title'] ) ) {
-			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
+            do_action( 'gsfc_before_widget_title', $instance );
+			echo $before_title . apply_filters( 'gsfc_widget_title', apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ), $instance ) . $after_title;
+            do_action( 'gsfc_after_widget_title', $instance );
         }
         
         $q_args = array();
@@ -1659,6 +2384,7 @@ function gsfcSave(t) {
             $q_args['page_id'] = $instance['page_id'];
         
         //* Term Args
+        $posts_term = array();
         if ( ! empty( $instance['posts_term'] ) ) {
             $posts_term = explode( ',', $instance['posts_term'] );
             if ( $posts_term['0'] == 'category' )
@@ -1711,7 +2437,7 @@ function gsfcSave(t) {
         
         //* Exclude displayed IDs from this loop?
 		if ( ! empty( $instance['exclude_displayed'] ) ) {
-            if ( is_array( $q_args['post__not_in'] ) )
+            if ( isset( $q_args['post__not_in'] ) && is_array( $q_args['post__not_in'] ) )
                 $q_args['post__not_in'] = array_unique( array_merge( $q_args['post__not_in'], (array) $_genesis_displayed_ids ) );
             else
                 $q_args['post__not_in'] = (array) $_genesis_displayed_ids;
@@ -1731,10 +2457,12 @@ function gsfcSave(t) {
         
         $instance['q_args'] = $q_args;
         GS_Featured_Content::$widget_instance = $instance;
+        $pt = 'any' == $instance['post_type'] ? GS_Featured_Content::get_post_types() : $instance['post_type'];
         $query_args = array_merge(
             $q_args,
             array(
-                'post_type'      => $instance['post_type'], 
+
+                'post_type'      => $pt, 
                 'posts_per_page' => $instance['posts_num'], 
                 'orderby'        => $instance['orderby'], 
                 'order'          => $instance['order'], 
@@ -1818,9 +2546,87 @@ function gsfcSave(t) {
         if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) )
             GS_Featured_Content::delete_transient( 'gsfc_main_' . $instance['custom_field'] );
         
-		return $new_instance;
+		return apply_filters( 'gsfc_update', $new_instance, $old_instance );
 
 	}
     
+
+}
+
+class GSFC_Skeleton {
+    public function __construct() {
+        if ( class_exists( 'GS_Featured_Content' ) && class_exists( 'WPSS_Font_Awesome' ) ) {
+            add_filter( 'gsfc_defaults', array( $this, 'defaults' ), 10, 3 );
+            add_filter( 'gsfc_form_fields', array( $this, 'add_form_fields' ), 10, 3 );
+            add_filter( 'gsfc_update', array( $this, 'update' ), 10, 3 );
+            
+            add_action( 'gsfc_before_post_content', array( $this, 'do_action' ) );
+            add_action( 'gsfc_post_content', array( $this, 'do_action' ) );
+            add_action( 'gsfc_after_post_content', array( $this, 'do_action' ) );
+        }
+    }
     
+    /**
+     * Add Font Awesome default settings to Featured Content Widget
+     * 
+     * @param array $defaults Array of default settings.
+     * @return array $defaults Modified array of default settings.
+     */
+    public function defaults( $defaults ) {
+        $gsfc_defaults = array();
+        
+        // Give precendent to existing defaults over my own
+        return wp_parse_args( $defaults, $gsfc_defaults );
+    }
+    
+    /**
+     * Add Font Awesome to Featured Content Widget
+     * 
+     * @param array $columns Array of Columns, Boxes, & Form Fields
+     * @param array $instance The settings for the particular instance of the widget.
+     * @param array $boxes Array of the Form Field Boxes
+     * @return array $icons Alpha sorted list of available Font Awesome classes
+     */
+    public function add_form_fields( $columns, $instance, $boxes ) {
+        $box_8 = array();
+        
+        $columns['col2'] = array( $box_8, $boxes['box_5'], $boxes['box_6'], $boxes['box_7'], );
+        
+        return $columns;
+    }
+    
+    /**
+	 * Update a particular instance.
+	 *
+	 * This function should check that $new_instance is set correctly.
+	 * The newly calculated value of $instance should be returned.
+	 * If "false" is returned, the instance won't be saved/updated.
+	 *
+	 * @since 0.1.8
+	 *
+	 * @param array $new_instance New settings for this instance as input by the user via form()
+	 * @param array $old_instance Old settings for this instance
+	 * @return array Settings to save or bool false to cancel saving
+	 */
+	public function update( $new_instance, $old_instance ) {
+        return $new_instance;
+    }
+    
+    /**
+     * Do Action
+     *
+     * @param array $instance The settings for the particular instance of the widget.
+     */
+    public function do_action( $instance ) {
+        //* Bail if empty show param
+        if ( empty( $instance['show_icon'] ) ) return;
+        
+        $link = $instance['link_icon_field'] && get_post_meta( get_the_ID(), $instance['link_icon_field'], true ) ? get_post_meta( get_the_ID(), $instance['link_icon_field'], true ) : get_permalink();
+        $icon = sprintf( '<%1$s class="%2$s"></%1$s>', $instance['icon_tag'], $instance['icon'] );
+        $icon = $instance['link_icon'] == 1 ? sprintf( '<a href="%s" title="%s" class="%s">%s</a>', $link, the_title_attribute( 'echo=0' ), $align, $icon ) : $icon;
+        echo 'icon';
+        GS_Featured_Content::maybe_echo( $instance, 'gsfc_before_post_content', 'icon_position', 'before-title', $icon );
+        GS_Featured_Content::maybe_echo( $instance, 'gsfc_post_content', 'icon_position', 'after-title', $icon );
+        GS_Featured_Content::maybe_echo( $instance, 'gsfc_after_post_content', 'icon_position', 'after-content', $icon );
+    }
 }
