@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Genesis Sandbox Featured Content Widget
  * Plugin URI: https://wpsmith.net/
- * Description: Based on Genesis Featured Widget Amplified by Nick Croft for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
+ * Description: Based on Nick Croft's Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
  * Version: 1.0.0
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
@@ -112,23 +112,20 @@ class GS_Featured_Content extends WP_Widget {
             array(
                 'add_column_classes'      => 0,
                 'archive_link'            => '',
-
                 'class'                   => '',
                 'column_classes'          => '',
                 'content_limit'           => '',
-
                 'count'                   => 0,
                 'custom_field'            => '',
+                'delete_transients'       => 0,
                 'excerpt_cutoff'          => '&hellip;',
                 'excerpt_limit'           => 55,
                 'exclude_cat'             => '',
                 'exclude_displayed'       => 0,
                 'exclude_terms'           => '',
                 'extra_format'            => 'ul',
-                'extra_num'               => '',
-                'extra_num'               => '',
+                'extra_num'               => 3,
                 'extra_posts'             => '',
-                'extra_title'             => '',
                 'extra_title'             => '',
                 'gravatar_alignment'      => '',
                 'gravatar_size'           => '',
@@ -145,18 +142,12 @@ class GS_Featured_Content extends WP_Widget {
                 'more_from_category'      => '',
                 'more_from_category_text' => __( 'More Posts from this Category', 'gsfc' ),
                 'more_text'               => __( '[Read More...]', 'gsfc' ),
-
-
-
-
-
                 'optimize'                => 1,
                 'order'                   => '',
                 'orderby'                 => '',
                 'page_id'                 => '',
                 'paged'                   => '',
                 'post_align'              => '',
-
                 'post_id'                 => '',
                 'post_info'               => '[post_date] ' . __( 'By', 'gsfc' ) . ' [post_author_posts_link] [post_comments]',
                 'post_meta'               => '[post_categories] [post_tags]',
@@ -173,7 +164,6 @@ class GS_Featured_Content extends WP_Widget {
                 'show_paged'              => '',
                 'show_sticky'             => '',
                 'show_title'              => 0,
-
                 'title'                   => '',
                 'title_cutoff'            => '&hellip;',
                 'title_limit'             => '',
@@ -220,6 +210,7 @@ class GS_Featured_Content extends WP_Widget {
         add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
         
         //* Do Post Image
+        add_filter( 'genesis_attr_gsfc-entry-image-widget', array( 'GS_Featured_Content', 'attributes_gsfc_entry_image_widget' ) );
         add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
         add_action( 'gsfc_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
         add_action( 'gsfc_after_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
@@ -368,6 +359,10 @@ class GS_Featured_Content extends WP_Widget {
         if ( GS_Featured_Content::has_value( 'column_class' ) && ( 0 == $gs_counter || 0 == $gs_counter % GS_Featured_Content::get_col_class_num( GS_Featured_Content::$widget_instance['column_class'] ) ) )
             $classes[] = 'first';
         
+        //* No BG Class
+        if ( GS_Featured_Content::has_value( 'use_icon' ) )
+            $classes[] = 'no-bg';
+            
         //* Custom Class
         if ( GS_Featured_Content::has_value( 'class' ) )
             $classes[] = GS_Featured_Content::$widget_instance['class'];
@@ -390,6 +385,29 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
+     * Add attributes for entry image element shown in a widget.
+     *
+     * @since 2.0.0
+     *
+     * @global WP_Post $post Post object.
+     *
+     * @param array $attributes Existing attributes.
+     *
+     * @return array Amended attributes.
+     */
+    public static function attributes_gsfc_entry_image_widget( $attributes ) {
+
+        global $post;
+
+        $attributes['class']    = sprintf( 'entry-image attachment-%s %s', $post->post_type, $attributes['align'] );
+        unset( $attributes['align'] );
+        $attributes['itemprop'] = 'image';
+
+        return $attributes;
+
+    }
+    
+    /**
      * Inserts Post Image
      *
      * @param array $instance The settings for the particular instance of the widget.
@@ -399,13 +417,13 @@ class GS_Featured_Content extends WP_Widget {
         if ( empty( $instance['show_image'] ) ) return;
         
         $align = $instance['image_alignment'] ? esc_attr( $instance['image_alignment'] ) : 'alignnone';
-        $link = $instance['link_image_field'] && genesis_get_custom_field( $instance['link_image_field'] ) ? genesis_get_custom_field( $instance['link_image_field'] ) : get_permalink();
+        $link  = $instance['link_image_field'] && genesis_get_custom_field( $instance['link_image_field'] ) ? genesis_get_custom_field( $instance['link_image_field'] ) : get_permalink();
         
         $image = genesis_get_image( array(
 				'format'  => 'html',
 				'size'    => $instance['image_size'],
 				'context' => 'featured-post-widget',
-				'attr'    => genesis_parse_attr( 'entry-image-widget', array( 'class' => $align, ) ),
+				'attr'    => genesis_parse_attr( 'gsfc-entry-image-widget', array( 'align' => $align, ) ),
 			) );
         
         $image = $instance['link_image'] == 1 ? sprintf( '<a href="%s" title="%s" class="%s">%s</a>', $link, the_title_attribute( 'echo=0' ), $align, $image ) : $image;
@@ -539,8 +557,6 @@ function gsfcSave(t) {
      * Form submit script.
      */
     public static function admin_scripts() {
-
-
         if ( ! GS_Featured_Content::is_widgets_page() ) return;
         $min = ( defined( 'WP_DEBUG' ) || defined( 'SCRIPT_DEBUG' ) ) ? '.' : '.min.';
         // wp_enqueue_script( 'gsfc-admin-widget', plugins_url( GSFC_PLUGIN_NAME . '/js/gsfc-admin' . $min . 'js' ), array( 'jquery', ), GSFC_PLUGIN_VERSION );
@@ -679,13 +695,14 @@ function gsfcSave(t) {
      * @param array $instance The settings for the particular instance of the widget.
      */
     public static function do_extra_posts( $instance ) {
+        if ( empty( $instance['extra_posts'] ) || empty( $instance['extra_num'] ) ) return;
         global $wp_query, $_genesis_displayed_ids;
-        if ( empty( $instance['extra_posts'] ) && empty( $instance['extra_num'] ) ) return;
         
         $before_title = $instance['widget_args']['before_title'];
+        $after_title  = $instance['widget_args']['after_title'];
         
         if ( ! empty( $instance['extra_title'] ) )
-            echo build_tag( $before_title ) . esc_html( $instance['extra_title'] ) . $after_title;;
+            echo GS_Featured_Content::build_tag( $before_title ) . esc_html( $instance['extra_title'] ) . $after_title;;
 
         $offset = intval( $instance['posts_num'] ) + intval( $instance['posts_offset'] );
         
@@ -698,7 +715,6 @@ function gsfcSave(t) {
                 'orderby'   => $instance['orderby'],
                 'order'     => $instance['order'],
                 'meta_key'  => $instance['meta_key'],
-                'paged'     => $page
             )
         );
         
@@ -716,28 +732,29 @@ function gsfcSave(t) {
             $gsfc_query = new WP_Query( $extra_posts_args );
         }
         
-        $listitems = '';
+        $optitems = $listitems = '';
         $items = array();
         
         if ( $gsfc_query->have_posts() ) :
             GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
             while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
-                GS_Featured_Content::action( 'gsfc_before_list_items', $instance );
-                $_genesis_displayed_ids[] = get_the_ID();
+                $_genesis_displayed_ids[] = $id = get_the_ID();
                 $listitems .= sprintf( '<li><a href="%s" title="%s">%s</a></li>', get_permalink(), the_title_attribute( 'echo=0' ), get_the_title() );
+                $optitems  .= sprintf( '<option value="%s">%s</option>', $id, get_the_title() );
                 $items[] = get_post();
                 
             endwhile;
+            wp_reset_postdata();
 
             if ( strlen( $listitems ) > 0 && ( 'drop_down' != $instance['extra_format'] ) )
-                echo apply_filters( 'gsfc_list_items', sprintf( '<ul>%s</ul>', $listitems ), $instance, $listitems, $items );
-            elseif ( strlen( $listitems ) > 0 ) {
+                echo apply_filters( 'gsfc_list_items', sprintf( '<%1$s>%2$s</%1$s>', $instance['extra_format'], $listitems ), $instance, $listitems, $items );
+            elseif ( strlen( $optitems ) > 0 ) {
                 printf(
-                    '<select id="%s" value="%s"><option value="none">%s %s</option>%s</select>',
-                    $this->get_field_id( 'extra_format' ),
+                    '<select id="gsfc-%s-extras"><option value="none">%s %s</option>%s</select>',
+                    $instance['custom_field'],
                     get_permalink(), __( 'Select', 'gsfc' ),
                     $instance['post_type'],
-                    $listitems
+                    $optitems
                 );
             }
                 
@@ -1410,577 +1427,12 @@ function gsfcSave(t) {
         
         $columns = array(
 			'col1' => array(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 $box_1,
                 $box_2,
                 $box_3,
                 $box_4,
             ),
 			'col2' => array(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 $box_5,
                 $box_6,
                 $box_7,
@@ -2034,25 +1486,6 @@ function gsfcSave(t) {
         return $random_string;
     }
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Outputs the column fields.
      * 
@@ -2097,28 +1530,16 @@ function gsfcSave(t) {
                                 __( 'Any', 'gsfc' )
                             );
 							
-
-
-
 							$post_types = GS_Featured_Content::get_post_types();
-
-
-
 							foreach ( $post_types as $post_type ) {
                                 $pt = get_post_type_object( $post_type );
                                 printf( '<option class="gs-pad-left-10" value="%s" %s>%s</option>',
                                     esc_attr( $post_type ),
                                     selected( esc_attr( $post_type ), $instance['post_type'], false ),
-
                                     esc_attr( $pt->label )
                                 );
                             }
                                 
-
-
-
-
-
 							echo '</select>';
 							break;
 
@@ -2338,6 +1759,44 @@ function gsfcSave(t) {
         return sprintf( ' data-requires-key="%s" data-requires-val="%s"', $a[0], $a[1] );
     }
     
+    /**
+	 * Sets custom field to a default.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $instance Current settings
+	 */
+    public static function set_custom_field( $instance ) {
+    
+        $cf = isset( $instance['title'] ) ? sanitize_title_with_dashes( $instance['title'] ) : '';
+        $cf = isset( $cf ) ? $cf : 'gsfc-' . $instance['post_type'];
+        return $cf;
+    }
+    
+    /**
+     * Add class to $before_widget
+     * 
+     * @param string $b     Default $before_widget.
+     * @param string $class Class to add to $before_widget.
+     * 
+     */
+    public static function before_widget( $b, $class = '' ) {
+    
+        /* Add the width from $widget_width to the class from the $before widget */
+        // no 'class' attribute - add one with the value of width
+        if( strpos( $b, 'class' ) === false ) {
+            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . $class . '"', $b );
+        }
+        // there is 'class' attribute - append width value to it
+        else {
+            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . $class . ' ', $b );
+        }
+        
+        /* Before widget */
+        echo $b;
+    }
+   
+    
 	/**
 	 * Echo the widget content.
 	 *
@@ -2347,7 +1806,6 @@ function gsfcSave(t) {
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
 	public function widget( $args, $instance ) {
-
 
         GS_Featured_Content::$widget_instance &= $instance;
 		global $wp_query, $_genesis_displayed_ids, $gs_counter;
@@ -2362,7 +1820,7 @@ function gsfcSave(t) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
         do_action( 'gsfc_before_widget', $instance );
-		echo $before_widget;
+        GS_Featured_Content::before_widget( $before_widget, $instance['custom_field'] );
         add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
         
         if ( ! empty( $instance['posts_offset'] ) && ! empty( $instance['paged'] ) )
@@ -2373,7 +1831,7 @@ function gsfcSave(t) {
 		//* Set up the author bio
 		if ( ! empty( $instance['title'] ) ) {
             do_action( 'gsfc_before_widget_title', $instance );
-			echo $before_title . apply_filters( 'gsfc_widget_title', apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ), $instance ) . $after_title;
+			echo $before_title . apply_filters( 'gsfc_widget_title', apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ), $instance, $this->id_base ) . $after_title;
             do_action( 'gsfc_after_widget_title', $instance );
         }
         
@@ -2461,7 +1919,6 @@ function gsfcSave(t) {
         $query_args = array_merge(
             $q_args,
             array(
-
                 'post_type'      => $pt, 
                 'posts_per_page' => $instance['posts_num'], 
                 'orderby'        => $instance['orderby'], 
@@ -2538,7 +1995,7 @@ function gsfcSave(t) {
 		$new_instance['title']          = strip_tags( $new_instance['title'] );
 		$new_instance['more_text']      = strip_tags( $new_instance['more_text'] );
 		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
-		$new_instance['custom_field']   = sanitize_title_with_dashes( $new_instance['custom_field'] );
+		$new_instance['custom_field']   = GS_Featured_Content::has_value( 'custom_field' ) ? sanitize_title_with_dashes( $new_instance['custom_field'] ) : GS_Featured_Content::set_custom_field( $new_instance );
         
         if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) )
             GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
@@ -2550,7 +2007,6 @@ function gsfcSave(t) {
 
 	}
     
-
 }
 
 class GSFC_Skeleton {
