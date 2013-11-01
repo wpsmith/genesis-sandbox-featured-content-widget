@@ -81,6 +81,7 @@ function gsfc_load_widgets() {
  * @category   Genesis_Sandbox
  * @package    Widgets
  */
+if ( ! class_exists( 'GS_Featured_Content' ) ) {
 class GS_Featured_Content extends WP_Widget {
     
     /**
@@ -2008,7 +2009,9 @@ function gsfcSave(t) {
 	}
     
 }
+}
 
+if ( ! class_exists( 'GSFC_Skeleton' ) ) {
 class GSFC_Skeleton {
     public function __construct() {
         if ( class_exists( 'GS_Featured_Content' ) && class_exists( 'WPSS_Font_Awesome' ) ) {
@@ -2085,4 +2088,5 @@ class GSFC_Skeleton {
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_post_content', 'icon_position', 'after-title', $icon );
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_after_post_content', 'icon_position', 'after-content', $icon );
     }
+}
 }
