@@ -593,13 +593,11 @@ function gsfcSave(t) {
             GS_Featured_Content::delete_transient( $name );
             return false;
         }
-        if ( is_multisite() ) {
-            if ( 40 < strlen( $name ) )
-                $name = substr( $string, 0, 40 );
-            return get_site_transient( $name );
-        } else {
-            return get_transient( $name );
-        }
+        
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        
+        get_transient( $name );
     }
     
     /**
@@ -610,13 +608,9 @@ function gsfcSave(t) {
      * @param int $time Time to store transient (default: 1 day)
      */
     protected static function set_transient( $name, $value, $time = 86400 ) {
-        if ( is_multisite() ) {
-            if ( 40 < strlen( $name ) )
-                $name = substr( $string, 0, 40 );
-            set_site_transient( $name, $value, $time );
-        } else {
-            set_transient( $name, $value, $time );
-        }
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        set_transient( $name, $value, $time );
     }
     
     /**
@@ -625,13 +619,9 @@ function gsfcSave(t) {
      * @param string $name Transient name.
      */
     protected static function delete_transient( $name ) {
-        if ( is_multisite() ) {
-            if ( 40 < strlen( $name ) )
-                $name = substr( $string, 0, 40 );
-            delete_site_transient( $name );
-        } else {
-            delete_transient( $name );
-        }
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        delete_transient( $name );
     }
     
     /**
