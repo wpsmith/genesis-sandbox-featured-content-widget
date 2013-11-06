@@ -83,7 +83,7 @@ class GS_Featured_Content extends WP_Widget {
                 'more_from_category'      => '',
                 'more_from_category_text' => __( 'More Posts from this Category', 'gsfc' ),
                 'more_text'               => __( '[Read More...]', 'gsfc' ),
-                'optimize'                => 1,
+                'optimize'                => 0,
                 'order'                   => '',
                 'orderby'                 => '',
                 'page_id'                 => '',
@@ -205,15 +205,16 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Adds all Widget's Actions at once for easy removal.
+     * Filters excerpt's more text.
      *
-     * @param int $length Current excerpt length.
-     * @return int Maybe new excerpt length.
+     * @param string $more_text Current excerpt more text.
+     * @return string Maybe modified more text.
      */
-    public static function excerpt_more1( $length ) {
-        if ( GS_Featured_Content::has_value( 'excerpt_cutoff' ) )
-            return GS_Featured_Content::$widget_instance['excerpt_cutoff'];
-        return $length;
+    public function excerpt_more( $more_text ) {
+        if ( isset( GS_Featured_Content::$widget_instance['more_text'] ) && GS_Featured_Content::$widget_instance['more_text'] ) {
+            return sprintf( '<a href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
+        }
+        return $more_text;
     }
     
     /**
@@ -226,18 +227,6 @@ class GS_Featured_Content extends WP_Widget {
         if ( GS_Featured_Content::has_value( 'excerpt_limit' ) && 0 != (int)GS_Featured_Content::$widget_instance['excerpt_limit'] )
             return (int)GS_Featured_Content::$widget_instance['excerpt_limit'];
         return $length;
-    }
-    
-    /**
-     * Filters excerpt's more text.
-     *
-     * @param string $more_text Current excerpt more text.
-     * @return string Maybe modified more text.
-     */
-    public function excerpt_more( $more_text ) {
-        if ( isset( GS_Featured_Content::$widget_instance['more_text'] ) && GS_Featured_Content::$widget_instance['more_text'] )
-            return GS_Featured_Content::$widget_instance['more_text'];
-        return $more_text;
     }
     
     /**
@@ -583,6 +572,18 @@ function gsfcSave(t) {
     }
     
     /**
+     * Sanitizies transient name (to less than 40 characters)
+     * 
+     * @param string $name Transient name. 
+     * @return string $name Maybe modified transient name.
+     */
+    public static function sanitize_transient( $name ) {
+        if ( 40 < strlen( $name ) )
+            $name = substr( $string, 0, 40 );
+        return $name;
+    }
+    
+    /**
      * Gets transient with multisite support.
      * Due to multisite support, forces name < 40 chars
      * 
@@ -594,22 +595,19 @@ function gsfcSave(t) {
             return false;
         }
         
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
-        
+        $name = GS_Featured_Content::sanitize_transient( $name );
         get_transient( $name );
     }
     
     /**
-     * Sets transient with multisite support.
+     * Sanitizes name & sets transient.
      * 
      * @param string $name Transient name.
      * @param mixed $value Transient value/data.
      * @param int $time Time to store transient (default: 1 day)
      */
     protected static function set_transient( $name, $value, $time = 86400 ) {
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
+        $name = GS_Featured_Content::sanitize_transient( $name );
         set_transient( $name, $value, $time );
     }
     
@@ -619,8 +617,7 @@ function gsfcSave(t) {
      * @param string $name Transient name.
      */
     protected static function delete_transient( $name ) {
-        if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
+        $name = GS_Featured_Content::sanitize_transient( $name );
         delete_transient( $name );
     }
     
@@ -1044,7 +1041,7 @@ function gsfcSave(t) {
             ),
             'add_column_classes'     => array(
                 'label'       => __( 'Need to add column classes?', 'gsfc' ),
-                'description' => 'Check to add column classes to your site (supports fifths).',
+                'description' => 'Check to add column classes to your site.',
                 'type'        => 'checkbox',
                 'requires'    => '',
             ),
