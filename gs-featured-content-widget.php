@@ -19,7 +19,7 @@
 /**
  * Genesis Sandbox Featured Post Widget
  *
- * @category   Genesis_Sandbox
+ * @category   Genesis_Sandbox_Featured_Content
  * @package    Widgets
  * @author     Travis Smith
  * @license    http://www.opensource.org/licenses/gpl-license.php GPL v2.0 (or later)
@@ -62,13 +62,12 @@ function gsfc_activation_check() {
     }
 }
 
-require_once( 'widget.php' );
-add_action( 'widgets_init', 'gsfc_load_widgets' );
-/**
- * Register widgets for use in the Genesis theme.
- *
- * @since 1.7.0
- */
-function gsfc_load_widgets() {
-	register_widget( 'GS_Featured_Content' );
+add_action( 'genesis_init', 'gsfc_init', 50 );
+function gsfc_init() {
+    require_once( 'widget.php' );
+    require_once( 'gsfc-settings.php' );
+    
+    global $_gsfc_settings;
+    $_gsfc_settings = new GSFC_Settings();
+    
 }
