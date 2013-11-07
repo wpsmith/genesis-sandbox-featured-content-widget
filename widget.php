@@ -210,7 +210,7 @@ class GS_Featured_Content extends WP_Widget {
      * @param string $more_text Current excerpt more text.
      * @return string Maybe modified more text.
      */
-    public function excerpt_more( $more_text ) {
+    public static function excerpt_more( $more_text ) {
         if ( isset( GS_Featured_Content::$widget_instance['more_text'] ) && GS_Featured_Content::$widget_instance['more_text'] ) {
             return sprintf( '<a href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
         }
@@ -700,7 +700,7 @@ function gsfcSave(t) {
             while ( $gsfc_query->have_posts() ) : $gsfc_query->the_post();
                 $_genesis_displayed_ids[] = $id = get_the_ID();
                 $listitems .= sprintf( '<li><a href="%s" title="%s">%s</a></li>', get_permalink(), the_title_attribute( 'echo=0' ), get_the_title() );
-                $optitems  .= sprintf( '<option value="%s">%s</option>', $id, get_the_title() );
+                $optitems  .= sprintf( '<option class="%s" value="%s">%s</option>', $id, get_permalink(), get_the_title() );
                 $items[] = get_post();
                 
             endwhile;
@@ -710,10 +710,9 @@ function gsfcSave(t) {
                 echo apply_filters( 'gsfc_list_items', sprintf( '<%1$s>%2$s</%1$s>', $instance['extra_format'], $listitems ), $instance, $listitems, $items );
             elseif ( strlen( $optitems ) > 0 ) {
                 printf(
-                    '<select id="gsfc-%s-extras"><option value="none">%s %s</option>%s</select>',
+                    '<select id="gsfc-%1$s-extras" onchange="window.location=document.getElementById(\'gsfc-%1$s-extras\').value;"><option value="none">%2$s</option>%3$s</select>',
                     $instance['custom_field'],
-                    get_permalink(), __( 'Select', 'gsfc' ),
-                    $instance['post_type'],
+                    __( 'Select', 'gsfc' ),
                     $optitems
                 );
             }
