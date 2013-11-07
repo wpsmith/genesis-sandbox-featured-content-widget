@@ -41,14 +41,11 @@ class GSFC_Settings extends Genesis_Admin_Settings {
     }
     
     /**
-     * Calls various hooks and parent constructor.
+     * Add GSFC Settings.
      *
      * @since 1.1.0
      */
     public function load() {
-        
-        /** Add/Remove Widgets */
-        add_action( 'widgets_init', array( $this, 'widgets_init' ), 50 );
         
         /** Add GSFC Settings */
         remove_action( 'after_setup_theme', 'genesis_add_admin_menu' );
@@ -125,15 +122,4 @@ class GSFC_Settings extends Genesis_Admin_Settings {
     <?php
     }
     
-    /**
-     * Register GSFC for use in the Genesis theme.
-     *
-     * @since 1.1.0
-     */
-    public function widgets_init() {
-        $gfwa = genesis_get_option( 'gsfc_gfwa' );
-        if ( class_exists( 'Genesis_Featured_Widget_Amplified' ) && $gfwa )
-            unregister_widget( 'Genesis_Featured_Widget_Amplified' );
-        register_widget( 'GS_Featured_Content' );
-    }
 }

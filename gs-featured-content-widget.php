@@ -31,7 +31,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit( 'Cheatin&#8217; uh?' );
 
 define( 'GSFC_PLUGIN_NAME', basename( dirname( __FILE__ ) ) );
-define( 'GSFC_PLUGIN_VERSION', '1.0.0' );
+define( 'GSFC_PLUGIN_VERSION', '1.1.0' );
 
 /** Load textdomain for translation */
 load_plugin_textdomain( 'gsfc', false, basename( dirname( __FILE__ ) ) . '/languages/' );
@@ -68,12 +68,27 @@ add_action( 'genesis_init', 'gsfc_init', 50 );
  * @since 1.1.0
  */
 function gsfc_init() {
-    require_once( 'widget.php' );
-    require_once( 'gsfc-settings.php' );
+    if ( is_admin() ) {
+        require_once( 'gsfc-settings.php' );
+        
+        global $_gsfc_settings;
+        $_gsfc_settings = new GSFC_Settings();
+    }
     
-    global $_gsfc_settings;
-    $_gsfc_settings = new GSFC_Settings();
-    
+}
+
+require_once( 'widget.php' );
+add_action( 'widgets_init', 'gsfc_widgets_init', 50 );
+/**
+ * Register GSFC for use in the Genesis theme.
+ *
+ * @since 1.1.0
+ */
+function gsfc_widgets_init() {
+    $gfwa = genesis_get_option( 'gsfc_gfwa' );
+    if ( class_exists( 'Genesis_Featured_Widget_Amplified' ) && $gfwa )
+        unregister_widget( 'Genesis_Featured_Widget_Amplified' );
+    register_widget( 'GS_Featured_Content' );
 }
 
 add_filter( 'plugin_action_links', 'gsfc_action_links', 10, 2 );
