@@ -596,7 +596,7 @@ function gsfcSave(t) {
         }
         
         $name = GS_Featured_Content::sanitize_transient( $name );
-        get_transient( $name );
+        return get_transient( $name );
     }
     
     /**
@@ -682,11 +682,11 @@ function gsfcSave(t) {
         
         if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
             if ( ! empty( $instance['delete_transients'] ) )
-                GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
-            if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) ) {
+                GS_Featured_Content::delete_transient( 'gsfc_extra_' . $instance['custom_field'] );
+            if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_' . $instance['custom_field'] ) ) ) {
                 $gsfc_query = new WP_Query( $extra_posts_args );
                 $time = !empty( $instance['transients_time'] ) ? (int)$instance['transients_time'] : 60 * 60 * 24;
-                GS_Featured_Content::set_transient( 'gsfc_extra_posts_' . $instance['custom_field'], $gsfc_query, $time );
+                GS_Featured_Content::set_transient( 'gsfc_extra_' . $instance['custom_field'], $gsfc_query, $time );
             }
         } else {
             $gsfc_query = new WP_Query( $extra_posts_args );
@@ -1084,7 +1084,7 @@ function gsfcSave(t) {
                 ),
             ),
             'optimize_more_2' => array(
-                'description' => 'Your extra posts transient id: gsfc_extra_posts_' . GS_Featured_Content::$widget_instance['custom_field'],
+                'description' => 'Your extra posts transient id: gsfc_extra_' . GS_Featured_Content::$widget_instance['custom_field'],
                 'type'        => 'description',
                 'requires'    => array(
                     'optimize',
@@ -1949,8 +1949,9 @@ function gsfcSave(t) {
         
         // get transient
 		if ( !empty( $instance['optimize'] ) && !empty( $instance['custom_field'] ) ) {
-            if ( ! empty( $instance['delete_transients'] ) )
+            if ( ! empty( $instance['delete_transients'] ) ) {
                 GS_Featured_Content::delete_transient( 'gsfc_main_' . $instance['custom_field'] );
+            }
             
             // Get transient, set transient if transient does not exist
             if ( false === ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) ) {
@@ -1959,9 +1960,10 @@ function gsfcSave(t) {
                 GS_Featured_Content::set_transient( 'gsfc_main_' . $instance['custom_field'], $gsfc_query, $time );
             }
             else {
+                $gsfc_query = apply_filters( 'gsfc_query_results', $gsfc_query, $instance );
             }
         } else {
-            $gsfc_query = new WP_Query( $query_args );
+            $gsfc_query = apply_filters( 'gsfc_query_results', new WP_Query( $query_args ) );
         }
 
 		if ( $gsfc_query->have_posts() ) : 
@@ -2012,11 +2014,13 @@ function gsfcSave(t) {
 		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
 		$new_instance['custom_field']   = GS_Featured_Content::has_value( 'custom_field' ) ? sanitize_title_with_dashes( $new_instance['custom_field'] ) : GS_Featured_Content::set_custom_field( $new_instance );
         
-        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_extra_posts_' . $instance['custom_field'] ) ) )
-            GS_Featured_Content::delete_transient( 'gsfc_extra_posts_' . $instance['custom_field'] );
-        
-        if ( false !== ( $gsfc_query = GS_Featured_Content::get_transient( 'gsfc_main_' . $instance['custom_field'] ) ) )
-            GS_Featured_Content::delete_transient( 'gsfc_main_' . $instance['custom_field'] );
+        GS_Featured_Content::delete_transient( 'gsfc_extra_' . $new_instance['custom_field'] );
+        if ( $new_instance['custom_field'] != $old_instance['custom_field'] )
+            GS_Featured_Content::delete_transient( 'gsfc_extra_' . $old_instance['custom_field'] );
+            
+        GS_Featured_Content::delete_transient( 'gsfc_main_' . $new_instance['custom_field'] );
+        if ( $new_instance['custom_field'] != $old_instance['custom_field'] )
+            GS_Featured_Content::delete_transient( 'gsfc_main_' . $old_instance['custom_field'] );
         
 		return apply_filters( 'gsfc_update', $new_instance, $old_instance );
 
