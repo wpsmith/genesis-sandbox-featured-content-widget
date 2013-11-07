@@ -100,8 +100,9 @@ add_filter( 'plugin_action_links', 'gsfc_action_links', 10, 2 );
  * @return array $links Maybe modified array of links.
  */
 function gsfc_action_links( $links, $file ) {
-    if ( $file == WPS_WPCM_PLUGIN_FILE ) {
-        array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=genesis' ), __( 'Settings', 'gsfc' ) ) );
+    if ( $file == plugin_basename( __FILE__ ) ) {
+        if ( class_exists( 'Genesis_Featured_Widget_Amplified' ) )
+            array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=genesis' ), __( 'Settings', 'gsfc' ) ) );
         array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'widgets.php' ), __( 'Widgets', 'gsfc' ) ) );
         array_push( $links, sprintf( '<a href="http://wpsmith.net/donation" target="_blank">%s</a>', __( 'Donate', 'gsfc' ) ) );
     }

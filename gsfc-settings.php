@@ -97,7 +97,8 @@ class GSFC_Settings extends Genesis_Admin_Settings {
      * @since 1.1.0
      */
     public function add_metabox() {
-        add_meta_box( 'gsfc-settings', __( 'Genesis Sandbox Featured Content Settings', 'gsfc' ), array( $this, 'settings' ), $this->pagehook, 'main', 'high' );
+        if ( class_exists( 'Genesis_Featured_Widget_Amplified' ) )
+            add_meta_box( 'gsfc-settings', __( 'Genesis Sandbox Featured Content Settings', 'gsfc' ), array( $this, 'settings' ), $this->pagehook, 'main', 'high' );
     }
     
     /**
