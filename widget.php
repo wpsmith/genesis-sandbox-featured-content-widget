@@ -11,6 +11,9 @@
  * @since      1.1.0
  */
 
+/** Exit if accessed directly */
+if ( ! defined( 'ABSPATH' ) ) exit( 'Cheatin&#8217; uh?' );
+
 /**
  * Genesis Sandbox Featured Post widget class.
  *
@@ -47,6 +50,11 @@ class GS_Featured_Content extends WP_Widget {
 	 */
 	function __construct() {
         GS_Featured_Content::$self = $this;
+        
+        $gfwa = genesis_get_option( 'gsfc_gfwa' );
+        if ( $gfwa )
+            GS_Featured_Content::$base = 'featured-post';
+        
 		$this->defaults = apply_filters(
             'gsfc_defaults',
             array(
