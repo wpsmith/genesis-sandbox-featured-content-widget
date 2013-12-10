@@ -77,8 +77,14 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_extra_post_args - extra post args for the extra posts list
 1. gsfc_list_items - HTML markup for the list items
 1. gsfc_form_fields - Add custom fields to widget form
+1. gsfc_add_featuredpost - Add .featuredpost to widget section/div class
 
 == Changelog ==
+1.0.1 (12/10/2013)
+
+* Fixed widget classes, post classes, options appearance
+
+
 1.0.0 (09/04/2013)
 
 * First Public Release
