@@ -156,7 +156,8 @@ class GS_Featured_Content extends WP_Widget {
         add_action( 'gsfc_output_form_fields', array( 'GS_Featured_Content', 'do_form_fields' ), 10, 2 );
         
         //* Post Class
-        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+		add_action( 'gsfc_before_loop', array( 'GS_Featured_Content', 'add_post_class' ), 5 );
+        add_action( 'gsfc_after_loop', array( 'GS_Featured_Content', 'remove_post_class' ) );
         
         //* Excerpts
         add_filter( 'excerpt_length', array( 'GS_Featured_Content', 'excerpt_length' ) );
@@ -304,10 +305,26 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
+     * Adds post class filter.
+     */
+    public static function add_post_class() {
+		add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+	}
+	
+    /**
+     * Removes post class filter.
+     */
+    public static function remove_post_class() {
+		remove_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+	}
+	
+    /**
      *  Adds number class, and odd/even class to widget output
      *
      * @global integer $gs_counter
      * @param array $classes Array of post classes.
+     * @param string|array $class One or more classes to add to the class list.
+     * @param int $post_id Post ID.
      * @return array $classes Modified array of post classes.
      */
     public static function post_class( $classes ) {
@@ -319,7 +336,7 @@ class GS_Featured_Content extends WP_Widget {
         //* First Class
         if ( GS_Featured_Content::has_value( 'column_class' ) && ( 0 == $gs_counter || 0 == $gs_counter % GS_Featured_Content::get_col_class_num( GS_Featured_Content::$widget_instance['column_class'] ) ) )
             $classes[] = 'first';
-        
+		
         //* No BG Class
         if ( GS_Featured_Content::has_value( 'use_icon' ) )
             $classes[] = 'no-bg';
@@ -826,7 +843,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'widget_title_link',
                     '',
-                    true
+                    true,
                 ),
             ),
         );
@@ -844,7 +861,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    false
+                    false,
                 ),
             ),
             'posts_term'              => array(
@@ -854,7 +871,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true
+                    true,
                 ),
             ),
             'exclude_terms'           => array(
@@ -864,7 +881,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true
+                    true,
                 ),
             ),
             'include_exclude'         => array(
@@ -877,9 +894,9 @@ function gsfcSave(t) {
                     'exclude' => __( 'Exclude', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true,
                 ),
             ),
             'post_id'                 => array(
@@ -889,7 +906,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'include_exclude',
                     '',
-                    true
+                    true,
                 ),
             ),
             'posts_num'               => array(
@@ -897,9 +914,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true,
                 ),
             ),
             'posts_offset'            => array(
@@ -907,9 +924,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true,
                 ),
             ),
             'orderby'                 => array(
@@ -927,9 +944,9 @@ function gsfcSave(t) {
                     'meta_value_num' => __( 'Numeric Meta Value', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true,
                 ),
             ),
             'order'                   => array(
@@ -941,9 +958,9 @@ function gsfcSave(t) {
                     'ASC'     => __( 'Ascending (1, 2, 3)' , 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true,
                 ),
             ),
             'meta_key'               => array(
@@ -953,7 +970,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'orderby',
                     'meta_value',
-                    false
+                    false,
                 ),
             ),
             'paged'                   => array(
@@ -963,7 +980,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true
+                    true,
                 ),
             ),
             'show_paged'              => array(
@@ -973,7 +990,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true
+                    true,
                 ),
             ),
             'exclude_displayed'         => array(
@@ -1004,7 +1021,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true
+                    true,
                 ),
             ),
             'link_gravatar'          => array(
@@ -1019,7 +1036,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true
+                    true,
                 ),
             ),
             'gravatar_alignment'      => array(
@@ -1034,7 +1051,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true
+                    true,
                 ),
             ),
         );
@@ -1087,7 +1104,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'optimize',
                     '',
-                    true
+                    true,
                 ),
             ),
             'optimize_more_2' => array(
@@ -1096,7 +1113,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'optimize',
                     '',
-                    true
+                    true,
                 ),
             ),
             'delete_transients'      => array(
@@ -1137,7 +1154,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true
+                    true,
                 ),
             ),
             'link_image_field'              => array(
@@ -1147,7 +1164,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'link_image',
                     '1',
-                    false
+                    false,
                 ),
             ),
             'image_size'              => array(
@@ -1158,7 +1175,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true
+                    true,
                 ),
             ),
             'image_position'          => array(
@@ -1173,7 +1190,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true
+                    true,
                 ),
             ),
             'image_alignment'         => array(
@@ -1189,7 +1206,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true
+                    true,
                 ),
             ),
         );
@@ -1727,20 +1744,20 @@ function gsfcSave(t) {
      * @param mixed $value Value to test against.
      * @param boolean $standard Echo standard return false for oposite.
      */
-    public static function get_display_option( $instance, $option='', $value='', $standard=true ) {
+    public static function get_display_option( $instance, $option = '', $value = '', $standard = true ) {
         $display = '';
         if ( is_array( $option ) ) {
             foreach ( $option as $key ) {
-                if ( in_array( $instance[$key], $value ) )
+                if ( in_array( $instance[ $key ], $value ) )
                     $display = 'display: none;';
             }
         }
         elseif ( is_array( $value ) ) {
-            if ( in_array( $instance[$option], $value ) )
+            if ( in_array( $instance[ $option ], $value ) )
                 $display = 'display: none;';
         }
         else {
-            if ( $instance[$option] == $value )
+            if ( $instance[ $option ] == $value )
                 $display = 'display: none;';
         }
         if ( $standard == false ) {
@@ -1787,17 +1804,28 @@ function gsfcSave(t) {
      * @param string $class Class to add to $before_widget.
      * 
      */
-    public static function before_widget( $b, $class = '' ) {
-    
+    // public static function before_widget( $b, $class = '' ) {
+    public static function before_widget( $b, $instance ) {
+		
+		$class = $instance['custom_field'];
+		
+		//* Post Type
+		if ( isset( $instance['post_type'] ) && 'any' !== $instance['post_type'] )
+			$featured_class = 'featured' . $instance['post_type'];
+		elseif ( isset( $instance['post_type'] ) && 'any' === $instance['post_type'] )
+			$featured_class = 'featuredpost';
+		
         /* Add the width from $widget_width to the class from the $before widget */
         // no 'class' attribute - add one with the value of width
         if( strpos( $b, 'class' ) === false ) {
-            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . $class . '"', $b );
+            $b = str_replace( '>', 'class="' . $featured_class . ' ' . GS_Featured_Content::$base . '-' . $class . '"', $b );
         }
         // there is 'class' attribute - append width value to it
         else {
-            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . $class . ' ', $b );
+            $b = str_replace( 'class="', 'class="' . $featured_class . ' '. GS_Featured_Content::$base . '-' . $class . ' ', $b );
         }
+		
+		
         
         /* Before widget */
         echo $b;
@@ -1842,8 +1870,9 @@ function gsfcSave(t) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
         do_action( 'gsfc_before_widget', $instance );
-        GS_Featured_Content::before_widget( $before_widget, $instance['custom_field'] );
-        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        // GS_Featured_Content::before_widget( $before_widget, $instance['custom_field'] );
+        GS_Featured_Content::before_widget( $before_widget, $instance );
+        // add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
         
         if ( ! empty( $instance['posts_offset'] ) && ! empty( $instance['paged'] ) )
             add_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
@@ -1924,7 +1953,7 @@ function gsfcSave(t) {
         }
         
         //* Before Loop Action
-        GS_Featured_Content::action( 'gs_before_loop', $instance );
+        GS_Featured_Content::action( 'gsfc_before_loop', $instance );
         
         if ( 0 === $instance['posts_num'] ) return;
         
