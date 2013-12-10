@@ -155,10 +155,6 @@ class GS_Featured_Content extends WP_Widget {
         //* Form Fields
         add_action( 'gsfc_output_form_fields', array( 'GS_Featured_Content', 'do_form_fields' ), 10, 2 );
         
-        //* Post Class
-		add_action( 'gsfc_before_loop', array( 'GS_Featured_Content', 'add_post_class' ), 5 );
-        add_action( 'gsfc_after_loop', array( 'GS_Featured_Content', 'remove_post_class' ) );
-        
         //* Excerpts
         add_filter( 'excerpt_length', array( 'GS_Featured_Content', 'excerpt_length' ) );
         add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
@@ -304,20 +300,6 @@ class GS_Featured_Content extends WP_Widget {
         }
     }
     
-    /**
-     * Adds post class filter.
-     */
-    public static function add_post_class() {
-		add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
-	}
-	
-    /**
-     * Removes post class filter.
-     */
-    public static function remove_post_class() {
-		remove_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
-	}
-	
     /**
      *  Adds number class, and odd/even class to widget output
      *
@@ -828,7 +810,13 @@ function gsfcSave(t) {
      * @return array $columns Array of form fields.
      */
     protected static function get_form_fields() {
-        $pt_obj = get_post_type_object( GS_Featured_Content::$widget_instance['post_type'] );
+		if ( 'any' == GS_Featured_Content::$widget_instance['post_type'] )
+			$pt_obj =(object)array(
+				'name'  => 'any',
+				'label' => 'Any Post Type',
+			);
+        else
+			$pt_obj = get_post_type_object( GS_Featured_Content::$widget_instance['post_type'] );
         $box   = array(
             'widget_title_link'     => array(
                 'label'       => __( 'Link Title?', 'gsfc' ),
@@ -1810,22 +1798,21 @@ function gsfcSave(t) {
 		$class = $instance['custom_field'];
 		
 		//* Post Type
-		if ( isset( $instance['post_type'] ) && 'any' !== $instance['post_type'] )
-			$featured_class = 'featured' . $instance['post_type'];
-		elseif ( isset( $instance['post_type'] ) && 'any' === $instance['post_type'] )
+		$featured_class = '';
+		if ( ( isset( $instance['post_type'] ) && 'any' === $instance['post_type'] ) || ( apply_filters( 'gsfc_add_featuredpost', false ) ) )
 			$featured_class = 'featuredpost';
+		if ( isset( $instance['post_type'] ) && 'any' !== $instance['post_type'] )
+			$featured_class .= ' featured' . $instance['post_type'];
 		
         /* Add the width from $widget_width to the class from the $before widget */
         // no 'class' attribute - add one with the value of width
         if( strpos( $b, 'class' ) === false ) {
-            $b = str_replace( '>', 'class="' . $featured_class . ' ' . GS_Featured_Content::$base . '-' . $class . '"', $b );
+            $b = str_replace( '>', 'class="' . trim( $featured_class ) . ' ' . GS_Featured_Content::$base . '-' . $class . '"', $b );
         }
         // there is 'class' attribute - append width value to it
         else {
-            $b = str_replace( 'class="', 'class="' . $featured_class . ' '. GS_Featured_Content::$base . '-' . $class . ' ', $b );
+            $b = str_replace( 'class="widget ', 'class="widget ' . trim( $featured_class ) . ' '. GS_Featured_Content::$base . '-' . $class . ' ', $b );
         }
-		
-		
         
         /* Before widget */
         echo $b;
