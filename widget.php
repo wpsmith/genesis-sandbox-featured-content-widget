@@ -155,6 +155,9 @@ class GS_Featured_Content extends WP_Widget {
         //* Form Fields
         add_action( 'gsfc_output_form_fields', array( 'GS_Featured_Content', 'do_form_fields' ), 10, 2 );
         
+        //* Post Class
+        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        
         //* Excerpts
         add_filter( 'excerpt_length', array( 'GS_Featured_Content', 'excerpt_length' ) );
         add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
@@ -305,8 +308,6 @@ class GS_Featured_Content extends WP_Widget {
      *
      * @global integer $gs_counter
      * @param array $classes Array of post classes.
-     * @param string|array $class One or more classes to add to the class list.
-     * @param int $post_id Post ID.
      * @return array $classes Modified array of post classes.
      */
     public static function post_class( $classes ) {
@@ -318,7 +319,7 @@ class GS_Featured_Content extends WP_Widget {
         //* First Class
         if ( GS_Featured_Content::has_value( 'column_class' ) && ( 0 == $gs_counter || 0 == $gs_counter % GS_Featured_Content::get_col_class_num( GS_Featured_Content::$widget_instance['column_class'] ) ) )
             $classes[] = 'first';
-		
+        
         //* No BG Class
         if ( GS_Featured_Content::has_value( 'use_icon' ) )
             $classes[] = 'no-bg';
@@ -330,6 +331,10 @@ class GS_Featured_Content extends WP_Widget {
         //* Column Class
         if ( GS_Featured_Content::has_value( 'column_class' ) )
             $classes[] = GS_Featured_Content::$widget_instance['column_class'];
+            
+        //* Replace Genesis Widgets
+        if ( apply_filters( 'gs_replace_genesis', false ) )
+            $classes[] = 'featured-post';
 
         return $classes;
     }
@@ -810,13 +815,7 @@ function gsfcSave(t) {
      * @return array $columns Array of form fields.
      */
     protected static function get_form_fields() {
-		if ( 'any' == GS_Featured_Content::$widget_instance['post_type'] )
-			$pt_obj =(object)array(
-				'name'  => 'any',
-				'label' => 'Any Post Type',
-			);
-        else
-			$pt_obj = get_post_type_object( GS_Featured_Content::$widget_instance['post_type'] );
+        $pt_obj = get_post_type_object( GS_Featured_Content::$widget_instance['post_type'] );
         $box   = array(
             'widget_title_link'     => array(
                 'label'       => __( 'Link Title?', 'gsfc' ),
@@ -831,7 +830,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'widget_title_link',
                     '',
-                    true,
+                    true
                 ),
             ),
         );
@@ -849,7 +848,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    false,
+                    false
                 ),
             ),
             'posts_term'              => array(
@@ -859,7 +858,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true,
+                    true
                 ),
             ),
             'exclude_terms'           => array(
@@ -869,7 +868,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true,
+                    true
                 ),
             ),
             'include_exclude'         => array(
@@ -882,9 +881,9 @@ function gsfcSave(t) {
                     'exclude' => __( 'Exclude', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true,
+                    'page_id',
+                    '',
+                    false
                 ),
             ),
             'post_id'                 => array(
@@ -894,7 +893,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'include_exclude',
                     '',
-                    true,
+                    true
                 ),
             ),
             'posts_num'               => array(
@@ -902,9 +901,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true,
+                    'page_id',
+                    '',
+                    false
                 ),
             ),
             'posts_offset'            => array(
@@ -912,9 +911,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true,
+                    'page_id',
+                    '',
+                    false
                 ),
             ),
             'orderby'                 => array(
@@ -932,9 +931,9 @@ function gsfcSave(t) {
                     'meta_value_num' => __( 'Numeric Meta Value', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true,
+                    'page_id',
+                    '',
+                    false
                 ),
             ),
             'order'                   => array(
@@ -946,9 +945,9 @@ function gsfcSave(t) {
                     'ASC'     => __( 'Ascending (1, 2, 3)' , 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true,
+                    'page_id',
+                    '',
+                    false
                 ),
             ),
             'meta_key'               => array(
@@ -958,7 +957,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'orderby',
                     'meta_value',
-                    false,
+                    false
                 ),
             ),
             'paged'                   => array(
@@ -968,7 +967,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true,
+                    true
                 ),
             ),
             'show_paged'              => array(
@@ -978,7 +977,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'post_type',
                     'page',
-                    true,
+                    true
                 ),
             ),
             'exclude_displayed'         => array(
@@ -1009,7 +1008,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true,
+                    true
                 ),
             ),
             'link_gravatar'          => array(
@@ -1024,7 +1023,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true,
+                    true
                 ),
             ),
             'gravatar_alignment'      => array(
@@ -1039,7 +1038,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_gravatar',
                     '',
-                    true,
+                    true
                 ),
             ),
         );
@@ -1092,7 +1091,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'optimize',
                     '',
-                    true,
+                    true
                 ),
             ),
             'optimize_more_2' => array(
@@ -1101,7 +1100,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'optimize',
                     '',
-                    true,
+                    true
                 ),
             ),
             'delete_transients'      => array(
@@ -1142,7 +1141,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true,
+                    true
                 ),
             ),
             'link_image_field'              => array(
@@ -1152,7 +1151,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'link_image',
                     '1',
-                    false,
+                    false
                 ),
             ),
             'image_size'              => array(
@@ -1163,7 +1162,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true,
+                    true
                 ),
             ),
             'image_position'          => array(
@@ -1178,7 +1177,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true,
+                    true
                 ),
             ),
             'image_alignment'         => array(
@@ -1194,7 +1193,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'show_image',
                     '',
-                    true,
+                    true
                 ),
             ),
         );
@@ -1732,20 +1731,20 @@ function gsfcSave(t) {
      * @param mixed $value Value to test against.
      * @param boolean $standard Echo standard return false for oposite.
      */
-    public static function get_display_option( $instance, $option = '', $value = '', $standard = true ) {
+    public static function get_display_option( $instance, $option='', $value='', $standard=true ) {
         $display = '';
         if ( is_array( $option ) ) {
             foreach ( $option as $key ) {
-                if ( in_array( $instance[ $key ], $value ) )
+                if ( in_array( $instance[$key], $value ) )
                     $display = 'display: none;';
             }
         }
         elseif ( is_array( $value ) ) {
-            if ( in_array( $instance[ $option ], $value ) )
+            if ( in_array( $instance[$option], $value ) )
                 $display = 'display: none;';
         }
         else {
-            if ( $instance[ $option ] == $value )
+            if ( $instance[$option] == $value )
                 $display = 'display: none;';
         }
         if ( $standard == false ) {
@@ -1792,26 +1791,16 @@ function gsfcSave(t) {
      * @param string $class Class to add to $before_widget.
      * 
      */
-    // public static function before_widget( $b, $class = '' ) {
-    public static function before_widget( $b, $instance ) {
-		
-		$class = $instance['custom_field'];
-		
-		//* Post Type
-		$featured_class = '';
-		if ( ( isset( $instance['post_type'] ) && 'any' === $instance['post_type'] ) || ( apply_filters( 'gsfc_add_featuredpost', false ) ) )
-			$featured_class = 'featuredpost';
-		if ( isset( $instance['post_type'] ) && 'any' !== $instance['post_type'] )
-			$featured_class .= ' featured' . $instance['post_type'];
-		
+    public static function before_widget( $b, $class = '' ) {
+    
         /* Add the width from $widget_width to the class from the $before widget */
         // no 'class' attribute - add one with the value of width
         if( strpos( $b, 'class' ) === false ) {
-            $b = str_replace( '>', 'class="' . trim( $featured_class ) . ' ' . GS_Featured_Content::$base . '-' . $class . '"', $b );
+            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . $class . ' featuredpost"', $b );
         }
         // there is 'class' attribute - append width value to it
         else {
-            $b = str_replace( 'class="widget ', 'class="widget ' . trim( $featured_class ) . ' '. GS_Featured_Content::$base . '-' . $class . ' ', $b );
+            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . $class . ' featuredpost ', $b );
         }
         
         /* Before widget */
@@ -1857,9 +1846,8 @@ function gsfcSave(t) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
         do_action( 'gsfc_before_widget', $instance );
-        // GS_Featured_Content::before_widget( $before_widget, $instance['custom_field'] );
-        GS_Featured_Content::before_widget( $before_widget, $instance );
-        // add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
+        GS_Featured_Content::before_widget( $before_widget, $instance['custom_field'] );
+        add_filter( 'post_class', array( 'GS_Featured_Content', 'post_class' ) );
         
         if ( ! empty( $instance['posts_offset'] ) && ! empty( $instance['paged'] ) )
             add_filter( 'post_limits', array( 'GS_Featured_Content', 'post_limit' ) );
@@ -1940,7 +1928,7 @@ function gsfcSave(t) {
         }
         
         //* Before Loop Action
-        GS_Featured_Content::action( 'gsfc_before_loop', $instance );
+        GS_Featured_Content::action( 'gs_before_loop', $instance );
         
         if ( 0 === $instance['posts_num'] ) return;
         
@@ -2035,7 +2023,7 @@ function gsfcSave(t) {
 		$new_instance['title']          = strip_tags( $new_instance['title'] );
 		$new_instance['more_text']      = strip_tags( $new_instance['more_text'] );
 		$new_instance['post_info']      = wp_kses_post( $new_instance['post_info'] );
-		$new_instance['custom_field']   = GS_Featured_Content::has_value( 'custom_field' ) ? sanitize_title_with_dashes( $new_instance['custom_field'] ) : GS_Featured_Content::set_custom_field( $new_instance );
+		$new_instance['custom_field']   = $new_instance['custom_field'] ? sanitize_title_with_dashes( $new_instance['custom_field'] ) : GS_Featured_Content::set_custom_field( $new_instance );
         
         GS_Featured_Content::delete_transient( 'gsfc_extra_' . $new_instance['custom_field'] );
         if ( $new_instance['custom_field'] != $old_instance['custom_field'] )
