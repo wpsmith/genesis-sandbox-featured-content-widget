@@ -143,7 +143,7 @@ class GS_Featured_Content extends WP_Widget {
         
         
         GS_Featured_Content::add();
-        do_action( 'gs_featured_content_actions', $this );
+        do_action( 'gsfc_actions', $this );
 	}
     
     /**
@@ -500,7 +500,7 @@ class GS_Featured_Content extends WP_Widget {
         } elseif ( $instance['show_content'] == 'content' ) {
             the_content( esc_html( $instance['more_text'] ) );
         } else {
-            do_action( 'gs_featured_content_show_content' );
+            do_action( 'gsfc_show_content' );
         }
     }
 

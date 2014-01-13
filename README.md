@@ -72,7 +72,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_after_category_more - after the archive more conditional block
 1. gsfc_after_taxonomy_more (alias of gsfc_after_category_more) - after the archive more conditional block
 1. gsfc_after_[TAXONOMY]_more (alias of gsfc_after_category_more) - after the archive more conditional block
-1. gs_featured_content_show_content - create your own custom content block
+1. gsfc_show_content - create your own custom content block
 
 ### What Filters are available? ###
 

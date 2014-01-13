@@ -3,7 +3,7 @@
  * Plugin Name: Genesis Sandbox Featured Content Widget
  * Plugin URI: https://wpsmith.net/
  * Description: Based on the Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
- * Version: 1.0.0
+ * Version: 1.1.1
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
  *
@@ -46,17 +46,12 @@ function gsfc_activation_check() {
 
     $latest = '2.0';
 
-    $theme_info = get_theme_data( TEMPLATEPATH . '/style.css' );
-
-    if ( basename( TEMPLATEPATH ) != 'genesis' ) {
+    if ( basename( get_template_directory() ) != 'genesis' ) {
         deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
-        wp_die( sprintf( __( 'Sorry, you can\'t activate unless you have installed %1$sGenesis%2$s', 'gfwa' ), '<a href="http://wpsmith.net/get-genesis/">', '</a>' ) );
+        wp_die( sprintf( __( 'Sorry, you can\'t activate unless you have installed %1$sGenesis%2$s', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', '</a>' ) );
     }
     
-    if ( function_exists( 'genesis_truncate_phrase' ) )
-        $version = genesis_truncate_phrase( $theme_info['Version'], 3 );
-
-    if ( version_compare( $version, $latest, '<' ) ) {
+    if ( ! function_exists( 'genesis_upgrade_2001' ) ) {
         deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
         wp_die( sprintf( __( 'Sorry, you can\'t activate without %1$sGenesis %2$s%3$s or greater', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', $latest, '</a>' ) );
     }
