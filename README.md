@@ -1,7 +1,8 @@
 # Genesis Sandbox Featured Content Widget #
 **Contributors:** wpsmith 
   
-Donate link:http://wpsmith.net
+**Donate link:** http://wpsmith.net
+
 **Tags:** genesis, genesiswp, studiopress, featured post, cu
   
 **Requires at least:** 3.6
