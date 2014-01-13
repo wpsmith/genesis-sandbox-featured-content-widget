@@ -83,6 +83,9 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_form_fields - Add custom fields to widget form
 
 == Changelog ==
+1.1.1 (01/12/2011)
+* Updated action/filters for consistency. DO NOT upgrade if you have used these hooks/filters without comparing.
+
 1.1.0 (01/12/2011)
 * First WordPress Repo Release
 
