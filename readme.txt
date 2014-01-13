@@ -32,6 +32,10 @@ New features include:
 *   White labeled naming option
 *   Added remove displayed posts option (won't display a post that already exists on the page)
 
+= Issues/Problems =
+
+Issues and development will be maintained in the Github repo: https://github.com/wpsmith/genesis-sandbox-featured-content-widget
+
 == Installation ==
 
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your WordPress installation and then activate the Plugin from Plugins page.
@@ -79,8 +83,10 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_form_fields - Add custom fields to widget form
 
 == Changelog ==
-1.0.0 (09/04/2013)
+1.1.0 (01/12/2011)
+* First WordPress Repo Release
 
+1.0.0 (09/04/2013)
 * First Public Release
 
 == Special Thanks ==
