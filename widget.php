@@ -1580,7 +1580,7 @@ function gsfcSave(t) {
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
 									
-                            $taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+                            $taxonomies = get_taxonomies( array( 'public' => true, 'name' =>'category' ), 'objects' );
                             $taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
 
                             foreach ( $taxonomies as $taxonomy ) {
