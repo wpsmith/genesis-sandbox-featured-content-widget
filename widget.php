@@ -591,7 +591,7 @@ function gsfcSave(t) {
      */
     public static function sanitize_transient( $name ) {
         if ( 40 < strlen( $name ) )
-            $name = substr( $string, 0, 40 );
+            $name = substr( $name, 0, 40 );
         return $name;
     }
     
