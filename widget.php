@@ -648,7 +648,7 @@ function gsfcSave(t) {
             GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
             $term = get_term_by( 'slug', $posts_term['1'], $taxonomy );
 			printf(
-				'<p class="more-from-%s"><a href="%1$s" title="%2$s">%3$s</a></p>',
+				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
                 $taxonomy,
 				esc_url( get_term_link( $posts_term['1'], $taxonomy ) ),
 				esc_attr( $term->name ),
