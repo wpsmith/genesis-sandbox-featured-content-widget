@@ -474,10 +474,11 @@ class GS_Featured_Content extends WP_Widget {
         else
             $title = the_title_attribute( 'echo=0' );
         
-        if ( genesis_html5() )
-            $hclass = ' class="entry-title"';
-        else
+        if ( genesis_html5() ) {
+            $hclass = apply_filters( 'gsfc_entry_title_class', ' class="entry-title"' );
+        } else {
             $hclass = '';
+		}
         
         printf( '<h2%s>%s%s%s</h2>', $hclass, $wrap_open, $title, $wrap_close );
     }
