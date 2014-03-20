@@ -1133,7 +1133,7 @@ function gsfcSave(t) {
         $box_4 = array(
             'optimize'               => array(
                 'label'       => __( 'Optimize?', 'gsfc' ),
-                'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set Instance Identification Field below.',
+                'description' => 'Check to optimize WP_Query & enable site transients for the query results. Instance Identification Field must be filled in, which will be auto-populated based on your widget title.',
                 'type'        => 'checkbox',
                 'requires'    => '',
             ),
