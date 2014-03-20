@@ -1541,6 +1541,38 @@ function gsfcSave(t) {
         }
         return $random_string;
     }
+	
+	/**
+	 * Get a list of registered taxonomy objects.
+	 *
+	 * @package WordPress
+	 * @subpackage Taxonomy
+	 * @since 3.0.0
+	 * @uses $wp_taxonomies
+	 * @see register_taxonomy
+	 *
+	 * @param array $args An array of key => value arguments to match against the taxonomy objects.
+	 * @param string $output The type of output to return, either taxonomy 'names' or 'objects'. 'names' is the default.
+	 * @param string $operator The logical operation to perform. 'or' means only one element
+	 *  from the array needs to match; 'and' means all elements must match. The default is 'and'.
+	 * @return array A list of taxonomy names or objects
+	 */
+	protected static function get_taxonomies( $args = array(), $output = 'names', $operator = 'and' ) {
+		$cache_key  = 'gsfc_get_tax_' . md5( $value );
+		$taxonomies = wp_cache_get( $cache_key, 'get_taxonomies' );
+
+		if ( false === $term_id ) {
+			$taxonomies = get_taxonomies( $args, $output, $operator );
+			if ( $taxonomies && ! is_wp_error( $taxonomies ) ) {
+				wp_cache_set( $cache_key, $taxonomies, 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
+			} else {
+				// if we get an invalid value, let's cache it anyway
+				wp_cache_set( $cache_key, array(), 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
+			}
+		} else {
+			$term = get_taxonomies( $args, $output, $operator );
+		}
+	}
     
     /**
      * Outputs the column fields.
@@ -1630,8 +1662,8 @@ function gsfcSave(t) {
                                 selected( '', $instance['posts_term'], false ),
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
-									
-                            $taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+							
+                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', array( 'public' => true ), $instance, $obj ), 'objects' );
                             $taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
 
                             foreach ( $taxonomies as $taxonomy ) {
