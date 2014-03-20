@@ -610,6 +610,57 @@ function gsfcSave(t) {
         $name = GS_Featured_Content::sanitize_transient( $name );
         return get_transient( $name );
     }
+	
+	/**
+	 * WP.com's VIP get_term by. Get all Term data from database by Term field and data.
+	 *
+	 * Warning: $value is not escaped for 'name' $field. You must do it yourself, if
+	 * required.
+	 *
+	 * The default $field is 'id', therefore it is possible to also use null for
+	 * field, but not recommended that you do so.
+	 *
+	 * If $value does not exist, the return value will be false. If $taxonomy exists
+	 * and $field and $value combinations exist, the Term will be returned.
+	 *
+	 * @since 1.1.3
+	 *
+	 * @uses get_term_by()
+	 * @uses wp_cache_get()
+	 * @uses wp_cache_set()
+	 *
+	 * @param string $field Either 'slug', 'name', 'id' (term_id), or 'term_taxonomy_id'
+	 * @param string|int $value Search for this term value
+	 * @param string $taxonomy Taxonomy Name
+	 * @param string $output Constant OBJECT, ARRAY_A, or ARRAY_N
+	 * @param string $filter Optional, default is raw or no WordPress defined filter will applied.
+	 * @return mixed Term Row from database. Will return false if $taxonomy does not exist or $term was not found.
+	 */
+	public static function get_term_by( $field, $value, $taxonomy, $output = OBJECT, $filter = 'raw' ) {
+		// ID lookups are cached
+		if ( 'id' == $field ) {
+			return get_term_by( $field, $value, $taxonomy, $output, $filter );
+		}
+
+		$cache_key = $field . '_' . md5( $value );
+		$term_id = wp_cache_get( $cache_key, 'get_term_by' );
+
+		if ( false === $term_id ) {
+			$term = get_term_by( $field, $value, $taxonomy );
+			if ( $term && ! is_wp_error( $term ) )
+				wp_cache_set( $cache_key, $term->term_id, 'get_term_by' );
+			else
+				wp_cache_set( $cache_key, 0, 'get_term_by' ); // if we get an invalid value, let's cache it anyway
+		} else {
+			$term = get_term( $term_id, $taxonomy, $output, $filter );
+		}
+
+		if ( is_wp_error( $term ) ) {
+			$term = false;
+		}
+
+		return $term;
+	}
     
     /**
      * Sanitizes name & sets transient.
@@ -646,7 +697,7 @@ function gsfcSave(t) {
             GS_Featured_Content::action( 'gsfc_category_more', $instance );
             GS_Featured_Content::action( 'gsfc_taxonomy_more', $instance );
             GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
-            $term = get_term_by( 'slug', $posts_term['1'], $taxonomy );
+            $term = GS_Featured_Content::get_term_by( 'slug', $posts_term['1'], $taxonomy );
 			printf(
 				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
                 $taxonomy,
