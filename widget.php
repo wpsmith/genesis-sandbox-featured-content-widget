@@ -648,7 +648,7 @@ function gsfcSave(t) {
             GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
             $term = get_term_by( 'slug', $posts_term['1'], $taxonomy );
 			printf(
-				'<p class="more-from-%s"><a href="%1$s" title="%2$s">%3$s</a></p>',
+				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
                 $taxonomy,
 				esc_url( get_term_link( $posts_term['1'], $taxonomy ) ),
 				esc_attr( $term->name ),
@@ -1796,11 +1796,11 @@ function gsfcSave(t) {
         /* Add the width from $widget_width to the class from the $before widget */
         // no 'class' attribute - add one with the value of width
         if( strpos( $b, 'class' ) === false ) {
-            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . $class . ' featuredpost"', $b );
+            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . sanitize_html_class( $class ) . ' featuredpost"', $b );
         }
         // there is 'class' attribute - append width value to it
         else {
-            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . $class . ' featuredpost ', $b );
+            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . sanitize_html_class( $class ) . ' featuredpost ', $b );
         }
         
         /* Before widget */
