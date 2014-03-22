@@ -220,7 +220,7 @@ class GS_Featured_Content extends WP_Widget {
      */
     public static function excerpt_more( $more_text ) {
         if ( isset( GS_Featured_Content::$widget_instance['more_text'] ) && GS_Featured_Content::$widget_instance['more_text'] ) {
-            return sprintf( '<a href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
+            return sprintf( '<a rel="nofollow" href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
         }
         return $more_text;
     }
@@ -474,10 +474,11 @@ class GS_Featured_Content extends WP_Widget {
         else
             $title = the_title_attribute( 'echo=0' );
         
-        if ( genesis_html5() )
-            $hclass = ' class="entry-title"';
-        else
+        if ( genesis_html5() ) {
+            $hclass = apply_filters( 'gsfc_entry_title_class', ' class="entry-title"' );
+        } else {
             $hclass = '';
+		}
         
         printf( '<h2%s>%s%s%s</h2>', $hclass, $wrap_open, $title, $wrap_close );
     }
@@ -610,6 +611,57 @@ function gsfcSave(t) {
         $name = GS_Featured_Content::sanitize_transient( $name );
         return get_transient( $name );
     }
+	
+	/**
+	 * WP.com's VIP get_term by. Get all Term data from database by Term field and data.
+	 *
+	 * Warning: $value is not escaped for 'name' $field. You must do it yourself, if
+	 * required.
+	 *
+	 * The default $field is 'id', therefore it is possible to also use null for
+	 * field, but not recommended that you do so.
+	 *
+	 * If $value does not exist, the return value will be false. If $taxonomy exists
+	 * and $field and $value combinations exist, the Term will be returned.
+	 *
+	 * @since 1.1.3
+	 *
+	 * @uses get_term_by()
+	 * @uses wp_cache_get()
+	 * @uses wp_cache_set()
+	 *
+	 * @param string $field Either 'slug', 'name', 'id' (term_id), or 'term_taxonomy_id'
+	 * @param string|int $value Search for this term value
+	 * @param string $taxonomy Taxonomy Name
+	 * @param string $output Constant OBJECT, ARRAY_A, or ARRAY_N
+	 * @param string $filter Optional, default is raw or no WordPress defined filter will applied.
+	 * @return mixed Term Row from database. Will return false if $taxonomy does not exist or $term was not found.
+	 */
+	public static function get_term_by( $field, $value, $taxonomy, $output = OBJECT, $filter = 'raw' ) {
+		// ID lookups are cached
+		if ( 'id' == $field ) {
+			return get_term_by( $field, $value, $taxonomy, $output, $filter );
+		}
+
+		$cache_key = $field . '_' . md5( $value );
+		$term_id = wp_cache_get( $cache_key, 'get_term_by' );
+
+		if ( false === $term_id ) {
+			$term = get_term_by( $field, $value, $taxonomy );
+			if ( $term && ! is_wp_error( $term ) )
+				wp_cache_set( $cache_key, $term->term_id, 'get_term_by' );
+			else
+				wp_cache_set( $cache_key, 0, 'get_term_by' ); // if we get an invalid value, let's cache it anyway
+		} else {
+			$term = get_term( $term_id, $taxonomy, $output, $filter );
+		}
+
+		if ( is_wp_error( $term ) ) {
+			$term = false;
+		}
+
+		return $term;
+	}
     
     /**
      * Sanitizes name & sets transient.
@@ -646,7 +698,7 @@ function gsfcSave(t) {
             GS_Featured_Content::action( 'gsfc_category_more', $instance );
             GS_Featured_Content::action( 'gsfc_taxonomy_more', $instance );
             GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
-            $term = get_term_by( 'slug', $posts_term['1'], $taxonomy );
+            $term = GS_Featured_Content::get_term_by( 'slug', $posts_term['1'], $taxonomy );
 			printf(
 				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
                 $taxonomy,
@@ -1081,7 +1133,7 @@ function gsfcSave(t) {
         $box_4 = array(
             'optimize'               => array(
                 'label'       => __( 'Optimize?', 'gsfc' ),
-                'description' => 'Check to optimize WP_Query & enable site transients for the query results. You MUST set Instance Identification Field below.',
+                'description' => 'Check to optimize WP_Query & enable site transients for the query results. Instance Identification Field must be filled in, which will be auto-populated based on your widget title.',
                 'type'        => 'checkbox',
                 'requires'    => '',
             ),
@@ -1490,6 +1542,38 @@ function gsfcSave(t) {
         }
         return $random_string;
     }
+	
+	/**
+	 * Get a list of registered taxonomy objects.
+	 *
+	 * @package WordPress
+	 * @subpackage Taxonomy
+	 * @since 3.0.0
+	 * @uses $wp_taxonomies
+	 * @see register_taxonomy
+	 *
+	 * @param array $args An array of key => value arguments to match against the taxonomy objects.
+	 * @param string $output The type of output to return, either taxonomy 'names' or 'objects'. 'names' is the default.
+	 * @param string $operator The logical operation to perform. 'or' means only one element
+	 *  from the array needs to match; 'and' means all elements must match. The default is 'and'.
+	 * @return array A list of taxonomy names or objects
+	 */
+	protected static function get_taxonomies( $args = array(), $output = 'names', $operator = 'and' ) {
+		$cache_key  = 'gsfc_get_tax_' . md5( $value );
+		$taxonomies = wp_cache_get( $cache_key, 'get_taxonomies' );
+
+		if ( false === $term_id ) {
+			$taxonomies = get_taxonomies( $args, $output, $operator );
+			if ( $taxonomies && ! is_wp_error( $taxonomies ) ) {
+				wp_cache_set( $cache_key, $taxonomies, 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
+			} else {
+				// if we get an invalid value, let's cache it anyway
+				wp_cache_set( $cache_key, array(), 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
+			}
+		} else {
+			$term = get_taxonomies( $args, $output, $operator );
+		}
+	}
     
     /**
      * Outputs the column fields.
@@ -1579,8 +1663,8 @@ function gsfcSave(t) {
                                 selected( '', $instance['posts_term'], false ),
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
-									
-                            $taxonomies = get_taxonomies( array( 'public' => true, 'name' =>'category' ), 'objects' );
+							
+                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', array( 'public' => true ), $instance, $obj ), 'objects' );
                             $taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
 
                             foreach ( $taxonomies as $taxonomy ) {
@@ -1796,11 +1880,11 @@ function gsfcSave(t) {
         /* Add the width from $widget_width to the class from the $before widget */
         // no 'class' attribute - add one with the value of width
         if( strpos( $b, 'class' ) === false ) {
-            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . $class . ' featuredpost"', $b );
+            $b = str_replace( '>', 'class="' . GS_Featured_Content::$base . '-' . sanitize_html_class( $class ) . ' featuredpost"', $b );
         }
         // there is 'class' attribute - append width value to it
         else {
-            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . $class . ' featuredpost ', $b );
+            $b = str_replace( 'class="', 'class="'. GS_Featured_Content::$base . '-' . sanitize_html_class( $class ) . ' featuredpost ', $b );
         }
         
         /* Before widget */
