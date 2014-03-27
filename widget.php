@@ -356,7 +356,6 @@ class GS_Featured_Content extends WP_Widget {
         
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_before_post_content', 'byline_position', 'before-title', $byline );
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_post_content', 'byline_position', 'after-title', $byline );
-        GS_Featured_Content::maybe_echo( $instance, 'gsfc_after_post_content', 'byline_position', 'after-title', $byline );
     }
     
     /**
