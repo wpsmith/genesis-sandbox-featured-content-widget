@@ -220,7 +220,7 @@ class GS_Featured_Content extends WP_Widget {
      */
     public static function excerpt_more( $more_text ) {
         if ( isset( GS_Featured_Content::$widget_instance['more_text'] ) && GS_Featured_Content::$widget_instance['more_text'] ) {
-            return sprintf( '<a rel="nofollow" href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
+            return sprintf( '<a rel="nofollow" class="more-link" href="%s">%s</a>', get_permalink(), GS_Featured_Content::$widget_instance['more_text'], GS_Featured_Content::$widget_instance['more_text'] );
         }
         return $more_text;
     }
