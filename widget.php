@@ -177,7 +177,7 @@ class GS_Featured_Content extends WP_Widget {
         
         //* Do Post Info By Line
         add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_byline' ), 5 );
-        add_action( 'gsfc_post_content', array( 'GS_Featured_Content', 'do_byline' ) );
+        add_action( 'gsfc_post_content', array( 'GS_Featured_Content', 'do_byline' ), 2 );
         add_action( 'gsfc_after_post_content', array( 'GS_Featured_Content', 'do_byline' ) );
         
         //* Do widget post content
@@ -345,13 +345,17 @@ class GS_Featured_Content extends WP_Widget {
      * @param array $instance The settings for the particular instance of the widget.
      */
     public static function do_byline( $instance ) {
-        if ( empty( $instance['show_byline'] ) || empty( $instance['post_info'] ) ) return;
+        if ( empty( $instance['show_byline'] ) || empty( $instance['post_info'] ) ) {
+			return;
+		}
         
         $byline = '';
-        if ( !empty( $instance['post_info'] ) )
+        if ( !empty( $instance['post_info'] ) ) {
             $byline = sprintf( '<p class="byline post-info">%s</p>', do_shortcode( esc_html( $instance['post_info'] ) ) );
+		}
         
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_before_post_content', 'byline_position', 'before-title', $byline );
+        GS_Featured_Content::maybe_echo( $instance, 'gsfc_post_content', 'byline_position', 'after-title', $byline );
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_after_post_content', 'byline_position', 'after-title', $byline );
     }
     
