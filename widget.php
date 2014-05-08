@@ -2015,7 +2015,7 @@ function gsfcSave(t) {
         }
         
         //* Before Loop Action
-        GS_Featured_Content::action( 'gs_before_loop', $instance );
+        GS_Featured_Content::action( 'gsfc_before_loop', $instance );
         
         if ( 0 === $instance['posts_num'] ) return;
         
