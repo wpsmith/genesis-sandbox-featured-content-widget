@@ -1565,7 +1565,7 @@ function gsfcSave(t) {
 		$cache_key  = 'gsfc_get_tax_' . md5( $value );
 		$taxonomies = wp_cache_get( $cache_key, 'get_taxonomies' );
 
-		if ( false === $term_id ) {
+		if ( false === $taxonomies ) {
 			$taxonomies = get_taxonomies( $args, $output, $operator );
 			if ( $taxonomies && ! is_wp_error( $taxonomies ) ) {
 				wp_cache_set( $cache_key, $taxonomies, 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
@@ -1574,8 +1574,9 @@ function gsfcSave(t) {
 				wp_cache_set( $cache_key, array(), 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
 			}
 		} else {
-			$term = get_taxonomies( $args, $output, $operator );
+			$taxonomies = get_taxonomies( $args, $output, $operator );
 		}
+        return $taxonomies;
 	}
     
     /**
@@ -1667,7 +1668,7 @@ function gsfcSave(t) {
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
 							
-                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', array( 'public' => true ), $instance, $obj ), 'objects' );
+                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', $instance, $obj ), 'objects' );
                             $taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
 
                             foreach ( $taxonomies as $taxonomy ) {
