@@ -483,7 +483,7 @@ class GS_Featured_Content extends WP_Widget {
             $hclass = '';
 		}
         
-        printf( '<h2%s>%s%s%s</h2>', $hclass, $wrap_open, $title, $wrap_close );
+        printf( '<header class="entry-header"><h2%s>%s%s%s</h2></header>', $hclass, $wrap_open, $title, $wrap_close );
     }
     
     /**
@@ -500,7 +500,9 @@ class GS_Featured_Content extends WP_Widget {
             the_excerpt();
             remove_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
         } elseif ( $instance['show_content'] == 'content-limit' ) {
+            echo '<div class="entry-content">';
             the_content_limit( ( int ) $instance['content_limit'], esc_html( $instance['more_text'] ) );
+            echo '</div>';
         } elseif ( $instance['show_content'] == 'content' ) {
             the_content( esc_html( $instance['more_text'] ) );
         } else {
