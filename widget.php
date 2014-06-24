@@ -426,6 +426,9 @@ class GS_Featured_Content extends WP_Widget {
      * @param array $instance The settings for the particular instance of the widget.
      */
     public static function action( $name, $instance ) {
+        if ( 'gs_before_loop' == $name ) {
+            _deprecated_argument( 'GS_Featured_Content::action', '1.1.5' );
+        }
         do_action( $name, $instance );
     }
     
@@ -2019,6 +2022,7 @@ function gsfcSave(t) {
         
         //* Before Loop Action
         GS_Featured_Content::action( 'gs_before_loop', $instance );
+        GS_Featured_Content::action( 'gsfc_before_loop', $instance );
         
         if ( 0 === $instance['posts_num'] ) return;
         
