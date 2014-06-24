@@ -1565,7 +1565,7 @@ function gsfcSave(t) {
 		$cache_key  = 'gsfc_get_tax_' . md5( $value );
 		$taxonomies = wp_cache_get( $cache_key, 'get_taxonomies' );
 
-		if ( false === $term_id ) {
+		if ( false === $taxonomies || null === $taxonomies ) {
 			$taxonomies = get_taxonomies( $args, $output, $operator );
 			if ( $taxonomies && ! is_wp_error( $taxonomies ) ) {
 				wp_cache_set( $cache_key, $taxonomies, 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
@@ -1574,8 +1574,10 @@ function gsfcSave(t) {
 				wp_cache_set( $cache_key, array(), 'get_taxonomies', apply_filters( 'gsfc_get_taxonomies_cache_expires', 0 ) );
 			}
 		} else {
-			$term = get_taxonomies( $args, $output, $operator );
+			$taxonomies = get_taxonomies( $args, $output, $operator );
 		}
+
+        return $taxonomies;
 	}
     
     /**
@@ -1659,6 +1661,10 @@ function gsfcSave(t) {
 							break;
 						
 						case 'select_taxonomy' :
+                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', array( 'public' => true ), $instance, $obj ), 'objects' );
+                        
+                            $taxonomies = array_filter( (array)$taxonomies, array( 'GS_Featured_Content', 'exclude_taxonomies' ) );
+
                             printf( '<label for="%1$s">%2$s:</label><select id="%1$s" name="%3$s" onchange="gsfcSave(this)"><option value="" class="gs-pad-left-10" %4$s>%5$s</option>',
                                 $obj->get_field_id( $field_id ),
                                 $args['label'],
@@ -1666,9 +1672,6 @@ function gsfcSave(t) {
                                 selected( '', $instance['posts_term'], false ),
                                 __( 'All Taxonomies and Terms', 'gsfc' )
                             );
-							
-                            $taxonomies = GS_Featured_Content::get_taxonomies( apply_filters( 'gsfc_get_taxonomies_args', array( 'public' => true ), $instance, $obj ), 'objects' );
-                            $taxonomies = array_filter( $taxonomies, array( __CLASS__, 'exclude_taxonomies' ) );
 
                             foreach ( $taxonomies as $taxonomy ) {
                                 $query_label = '';
