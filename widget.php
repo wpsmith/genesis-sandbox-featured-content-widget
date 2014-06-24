@@ -500,7 +500,7 @@ class GS_Featured_Content extends WP_Widget {
             return;
         }
 
-        if ( '' !== $instance['show_content'] && ! ( apply_filters( 'gsfc_post_content_add_entry_cont' ) ) ) {
+        if ( '' !== $instance['show_content'] && ! ( apply_filters( 'gsfc_post_content_add_entry_content' ) ) ) {
             echo '<div class="entry-content">';
         }
         switch ( $instance['show_content'] ) {
