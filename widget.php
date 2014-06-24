@@ -500,7 +500,7 @@ class GS_Featured_Content extends WP_Widget {
             return;
         }
 
-        if ( '' !== $instance['show_content'] && ! ( apply_filters( 'gsfc_post_content_add_entry_content' ) ) ) {
+        if ( '' !== $instance['show_content'] && ( $pre = apply_filters( 'gsfc_post_content_add_entry_content', false ) ) ) {
             echo '<div class="entry-content">';
         }
         switch ( $instance['show_content'] ) {
@@ -519,7 +519,7 @@ class GS_Featured_Content extends WP_Widget {
                 do_action( 'gsfc_show_content' );
                 break;
         }
-        if ( '' !== $instance['show_content'] ) {
+        if ( '' !== $instance['show_content'] && ( $pre = apply_filters( 'gsfc_post_content_add_entry_content', false ) ) ) {
             echo '</div>';
         }
         
