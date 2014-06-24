@@ -3,7 +3,7 @@
  * Plugin Name: Genesis Sandbox Featured Content Widget
  * Plugin URI: https://wpsmith.net/
  * Description: Based on the Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
  *
@@ -111,7 +111,7 @@ add_action( 'save_post', 'gsfc_save_post', 10, 3 );
  *
  * Contains a filter gsfc_save_post_query for anyone to modify the query.
  *
- * @since  1.1.15
+ * @since  1.1.5
  * @date   2014-06-24
  * @author Travis Smith <t(at)wpsmith.net>}
  *
