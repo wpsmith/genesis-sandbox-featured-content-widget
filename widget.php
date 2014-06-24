@@ -388,8 +388,10 @@ class GS_Featured_Content extends WP_Widget {
      */
     public static function do_post_image( $instance ) {
         //* Bail if empty show param
-        if ( empty( $instance['show_image'] ) ) return;
-        
+        if ( empty( $instance['show_image'] ) ) {
+            return;
+        }
+
         $align = $instance['image_alignment'] ? esc_attr( $instance['image_alignment'] ) : 'alignnone';
         $link  = $instance['link_image_field'] ? $instance['link_image_field'] : get_permalink();
         $link  = genesis_get_custom_field( 'gsfc_link_image_field' ) ? genesis_get_custom_field( 'gsfc_link_image_field' ) : $instance['link_image_field'];
