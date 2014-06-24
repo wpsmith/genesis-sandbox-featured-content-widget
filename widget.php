@@ -485,8 +485,9 @@ class GS_Featured_Content extends WP_Widget {
         } else {
             $hclass = '';
 		}
-        
-        printf( '<h2%s>%s%s%s</h2>', $hclass, $wrap_open, $title, $wrap_close );
+
+        $pattern = apply_filters( 'gsfc_post_title_pattern', '<h2%s>%s%s%s</h2>' );
+        printf( $pattern, $hclass, $wrap_open, $title, $wrap_close );
     }
     
     /**
