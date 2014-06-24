@@ -627,7 +627,7 @@ function gsfcSave(t) {
      * @param string $name Transient name.
      */
     protected static function get_transient( $name ) {
-        if ( defined( 'WP_DEBUG' ) && WP_DEBUG && apply_filters( 'gsfc_debug', false ) ) {
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG || apply_filters( 'gsfc_debug', false ) ) {
             GS_Featured_Content::delete_transient( $name );
             return false;
         }
