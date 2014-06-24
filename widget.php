@@ -1581,7 +1581,8 @@ function gsfcSave(t) {
 	 * @return array A list of taxonomy names or objects
 	 */
 	protected static function get_taxonomies( $args = array(), $output = 'names', $operator = 'and' ) {
-		$cache_key  = 'gsfc_get_tax_' . md5( $value );
+		
+        $cache_key  = 'gsfc_get_tax_' . md5( GS_Featured_Content::$widget_instance['widget']->id );
 		$taxonomies = wp_cache_get( $cache_key, 'get_taxonomies' );
 
 		if ( false === $taxonomies || null === $taxonomies ) {
@@ -1794,8 +1795,8 @@ function gsfcSave(t) {
 	 * @param array $object Current GS_Featured_Content object
 	 */
     public static function do_form_fields( $instance, $object ) {
-        GS_Featured_Content::$widget_instance = $instance;
-        
+        GS_Featured_Content::$widget_instance = array_merge( $instance, array( 'widget' => $object ) );
+
         //* Get Columns
         $columns = GS_Featured_Content::get_form_fields();
         GS_Featured_Content::do_columns( $instance, $columns, $object );
@@ -1813,7 +1814,8 @@ function gsfcSave(t) {
         
 		//* Merge with defaults
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
-        GS_Featured_Content::$widget_instance = $instance;
+        // GS_Featured_Content::$widget_instance = $instance;
+        GS_Featured_Content::$widget_instance = array_merge( $instance, array( 'widget' => $this ) );
         
         //* Title Field
         echo '<p><label for="'. $this->get_field_id( 'title' ) .'">'. __( 'Title', 'gsfc' ) .':</label><input type="text" id="'. $this->get_field_id( 'title' ) .'" name="'. $this->get_field_name( 'title' ) .'" value="'. esc_attr( $instance['title'] ) .'" style="width:99%;" /></p>';
@@ -1824,7 +1826,6 @@ function gsfcSave(t) {
         echo '<div class="gsfc-widget-wrapper">';
         
         do_action( 'gsfc_output_form_fields', $instance, $this );
-        // GS_Featured_Content::$widget_instance = $instance;
         
         echo '</div>';
         
@@ -1916,14 +1917,14 @@ function gsfcSave(t) {
         echo $b;
     }
    
-   /**
-    * Linkify widget title
-    * 
-    * @param string $widget_title 
-    * @param array $instance The settings for the particular instance of the widget.
-    * @param string $id_base ID base of the widget.
-    * @return string Maybe modified widget title.
-    */
+    /**
+     * Linkify widget title
+     * 
+     * @param string $widget_title 
+     * @param array $instance The settings for the particular instance of the widget.
+     * @param string $id_base ID base of the widget.
+     * @return string Maybe modified widget title.
+     */
     public function widget_title( $widget_title, $instance, $id_base ) {
         
         if ( isset( $instance['widget_title_link'] ) && isset( $instance['widget_title_link_href'] ) && $instance['widget_title_link_href'] )
@@ -1942,7 +1943,7 @@ function gsfcSave(t) {
 	 */
 	public function widget( $args, $instance ) {
 
-        GS_Featured_Content::$widget_instance &= $instance;
+        GS_Featured_Content::$widget_instance = array_merge( $instance, array( 'widget_args' => $args, ) );
 		global $wp_query, $_genesis_displayed_ids, $gs_counter;
 
 		extract( $args );
