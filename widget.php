@@ -496,19 +496,33 @@ class GS_Featured_Content extends WP_Widget {
      */
     public static function do_post_content( $instance ) {
         //* Bail if empty show param
-        if ( empty( $instance['show_content'] ) ) return;
-        
-        if ( $instance['show_content'] == 'excerpt' ) {
-            add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
-            the_excerpt();
-            remove_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
-        } elseif ( $instance['show_content'] == 'content-limit' ) {
-            the_content_limit( ( int ) $instance['content_limit'], esc_html( $instance['more_text'] ) );
-        } elseif ( $instance['show_content'] == 'content' ) {
-            the_content( esc_html( $instance['more_text'] ) );
-        } else {
-            do_action( 'gsfc_show_content' );
+        if ( empty( $instance['show_content'] ) ) {
+            return;
         }
+
+        if ( '' !== $instance['show_content'] && ! ( apply_filters( 'gsfc_post_content_add_entry_cont' ) ) ) {
+            echo '<div class="entry-content">';
+        }
+        switch ( $instance['show_content'] ) {
+            case 'excerpt':
+                add_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
+                the_excerpt();
+                remove_filter( 'excerpt_more', array( 'GS_Featured_Content', 'excerpt_more' ) );
+                break;
+            case 'content-limit':
+                the_content_limit( ( int ) $instance['content_limit'], esc_html( $instance['more_text'] ) );
+                break;
+            case 'content':
+                the_content( esc_html( $instance['more_text'] ) );
+                break;
+            default:
+                do_action( 'gsfc_show_content' );
+                break;
+        }
+        if ( '' !== $instance['show_content'] ) {
+            echo '</div>';
+        }
+        
     }
 
     /**
