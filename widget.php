@@ -351,7 +351,7 @@ class GS_Featured_Content extends WP_Widget {
         
         $byline = '';
         if ( !empty( $instance['post_info'] ) ) {
-            $byline = sprintf( '<p class="byline post-info">%s</p>', do_shortcode( esc_html( $instance['post_info'] ) ) );
+            $byline = sprintf( '<p class="byline post-info">%s</p>', do_shortcode( $instance['post_info'] ) );
 		}
         
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_before_post_content', 'byline_position', 'before-title', $byline );
@@ -536,7 +536,7 @@ class GS_Featured_Content extends WP_Widget {
      */
     public static function do_post_meta( $instance ) {
         if ( ! empty( $instance['show_archive_line'] ) && ! empty( $instance['post_meta'] ) )
-            printf( '<p class="post-meta">%s</p>', do_shortcode( esc_html( $instance['post_meta'] ) ) );
+            printf( '<p class="post-meta">%s</p>', do_shortcode( $instance['post_meta'] ) );
     }
     
     /**
