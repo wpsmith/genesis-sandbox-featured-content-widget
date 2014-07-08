@@ -472,7 +472,7 @@ class GS_Featured_Content extends WP_Widget {
         if ( empty( $instance['show_title'] ) ) return;
         
         //* Custom Link or Permalink
-        $link = $instance['link_title_field'] && genesis_get_custom_field( $instance['link_title_field']) ? genesis_get_custom_field( $instance['link_title_field']) : get_permalink();
+        $link = $instance['link_title'] && $instance['link_title_field'] && genesis_get_custom_field( 'link_title_field' ) ? genesis_get_custom_field( 'link_title_field' ) : get_permalink();
         
         //* Add Link to Title?
         $wrap_open = $instance['link_title'] == 1 ? sprintf( '<a href="%s" title="%s">', $link, the_title_attribute( 'echo=0' ) ) : '';
@@ -2158,6 +2158,7 @@ function gsfcSave(t) {
         // Fix potential issues
         $new_instance['page_id']         = 'page' !== $new_instance['post_type'] ? '' : absint( $new_instance['page_id'] );
         $new_instance['include_exclude'] = 'page' !== $new_instance['post_type'] ? $new_instance['include_exclude'] : '';
+        $new_instance['link_title_field'] = $new_instance['link_title'] ? $new_instance['link_title_field'] : '';
 
 		return apply_filters( 'gsfc_update', $new_instance, $old_instance );
 
