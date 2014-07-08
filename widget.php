@@ -1481,7 +1481,7 @@ function gsfcSave(t) {
                 'requires'    => array(
                     'posts_term',
                     '',
-                    false
+                    true
                 ),
             ),
             'more_from_category_text' => array(
