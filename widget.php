@@ -957,9 +957,9 @@ function gsfcSave(t) {
                     'exclude' => __( 'Exclude', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true
                 ),
             ),
             'post_id'                 => array(
@@ -977,9 +977,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true
                 ),
             ),
             'posts_offset'            => array(
@@ -987,9 +987,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'text_small',
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true
                 ),
             ),
             'orderby'                 => array(
@@ -1007,9 +1007,9 @@ function gsfcSave(t) {
                     'meta_value_num' => __( 'Numeric Meta Value', 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true
                 ),
             ),
             'order'                   => array(
@@ -1021,9 +1021,9 @@ function gsfcSave(t) {
                     'ASC'     => __( 'Ascending (1, 2, 3)' , 'gsfc' ),
                 ),
                 'requires'    => array(
-                    'page_id',
-                    '',
-                    false
+                    'post_type',
+                    'page',
+                    true
                 ),
             ),
             'meta_key'               => array(
@@ -1506,19 +1506,19 @@ function gsfcSave(t) {
         );
         
         $columns = array(
-			'col'  => array( $box, ),
+            'col'  => array( $box, ),
             'col1' => array(
                 $box_1,
                 $box_2,
                 $box_3,
                 $box_4,
             ),
-			'col2' => array(
+            'col2' => array(
                 $box_5,
                 $box_6,
                 $box_7,
             ),
-		);
+        );
         return apply_filters( 'gsfc_form_fields', $columns, GS_Featured_Content::$widget_instance, compact( "box_1", "box_2", "box_3", "box_4", "box_5", "box_6", "box_7" ) );
     }
     
@@ -2146,13 +2146,19 @@ function gsfcSave(t) {
 		$new_instance['custom_field']   = $new_instance['custom_field'] ? sanitize_title_with_dashes( $new_instance['custom_field'] ) : GS_Featured_Content::set_custom_field( $new_instance );
         
         GS_Featured_Content::delete_transient( 'gsfc_extra_' . $new_instance['custom_field'] );
-        if ( $new_instance['custom_field'] != $old_instance['custom_field'] )
+        if ( $new_instance['custom_field'] != $old_instance['custom_field'] ) {
             GS_Featured_Content::delete_transient( 'gsfc_extra_' . $old_instance['custom_field'] );
+        }
             
         GS_Featured_Content::delete_transient( 'gsfc_main_' . $new_instance['custom_field'] );
-        if ( $new_instance['custom_field'] != $old_instance['custom_field'] )
+        if ( $new_instance['custom_field'] != $old_instance['custom_field'] ) {
             GS_Featured_Content::delete_transient( 'gsfc_main_' . $old_instance['custom_field'] );
+        }
         
+        // Fix potential issues
+        $new_instance['page_id']         = 'page' !== $new_instance['post_type'] ? '' : absint( $new_instance['page_id'] );
+        $new_instance['include_exclude'] = 'page' !== $new_instance['post_type'] ? $new_instance['include_exclude'] : '';
+
 		return apply_filters( 'gsfc_update', $new_instance, $old_instance );
 
 	}
