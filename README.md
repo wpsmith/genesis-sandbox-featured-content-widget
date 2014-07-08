@@ -84,9 +84,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_form_fields - Add custom fields to widget form
 
 ## Changelog ##
-1.0.0 (09/04/2013)
-
-* First Public Release
+* 1.1.6 (07/08/2014) Fixed meta_value_numeric to show meta_key input. TY @4WardMotion.
 
 ## Special Thanks ##
 I owe a huge debt of gratitude to all the folks at StudioPress & Gary Jones, their themes make my life easier.
