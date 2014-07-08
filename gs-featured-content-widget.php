@@ -80,6 +80,9 @@ add_action( 'widgets_init', 'gsfc_widgets_init', 50 );
  * @since 1.1.0
  */
 function gsfc_widgets_init() {
+    if ( class_exists( 'Premise_Base' ) && !is_admin() ) {
+        return;
+    }
     $gfwa = genesis_get_option( 'gsfc_gfwa' );
     if ( class_exists( 'Genesis_Featured_Widget_Amplified' ) && $gfwa ) {
         unregister_widget( 'Genesis_Featured_Widget_Amplified' );
