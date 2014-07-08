@@ -87,6 +87,7 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 * Fixed post_info/post_meta issue #26, props BenFurfie.
 * Fixed link_title_field issue, #27.
 * Fixed conflict with Premise, which is their fault really, #18.
+* Fix More from Category Custom Link, #24, #19.
 
 1.1.7 (07/18/2014)
 * Fixed include/exclude issue. #28
