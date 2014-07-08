@@ -1032,7 +1032,7 @@ function gsfcSave(t) {
                 'type'        => 'text',
                 'requires'    => array(
                     'orderby',
-                    'meta_value',
+                    array( 'meta_value', 'meta_value_num', ),
                     false
                 ),
             ),
@@ -1621,7 +1621,8 @@ function gsfcSave(t) {
             printf( '<div class="%s">', $col_class );
             
 			foreach( $boxes as $box ) {
-                $box_style = isset( $box['box_requires'] ) ? ' style="'. GS_Featured_Content::get_display_option( $instance, $box['box_requires'][0], $box['box_requires'][1], $box['box_requires'][2] ) .'"' : '';
+                $box_style = isset( $box['box_requires'] ) ? ' style="'. GS_Featured_Content::get_display_option( $instance, $box['box_requires'] ) .'"' : '';
+                // $box_style = isset( $box['box_requires'] ) ? ' style="'. GS_Featured_Content::get_display_option( $instance, $box['box_requires'][0], $box['box_requires'][1], $box['box_requires'][2] ) .'"' : '';
 				printf( '<div class="gsfc-box"%s>', $box_style );
             
 				foreach( $box as $field_id => $args ) {
@@ -1630,7 +1631,7 @@ function gsfcSave(t) {
                     $style = '';
                    
                     if ( isset( $args['requires'] ) && is_array( $args['requires'] ) && 3 == count( $args['requires'] ) ) {
-                        $style = ' style="'. GS_Featured_Content::get_display_option( $instance, $args['requires'][0], $args['requires'][1], $args['requires'][2] ) .'"';
+                        $style = ' style="'. GS_Featured_Content::get_display_option( $instance, $args['requires'] ) .'"';
                         echo '<div ' . $style . ' class="' . $args['type'] . ' ' . $field_id . '" data-requires-key="' . $args['requires'][0] . '" data-requires-value="' . $args['requires'][1] . '" >';
                     } else {
                         echo '<div ' . $style . ' class="' . $args['type'] . ' ' . $field_id . '" >';
@@ -1843,8 +1844,12 @@ function gsfcSave(t) {
      * @param mixed $value Value to test against.
      * @param boolean $standard Echo standard return false for oposite.
      */
-    public static function get_display_option( $instance, $option='', $value='', $standard=true ) {
-        $display = '';
+    public static function get_display_option( $instance, $requires ) {
+        $display  = '';
+        $option   = $requires[0];
+        $value    = $requires[1];
+        $standard = $requires[2];
+
         if ( is_array( $option ) ) {
             foreach ( $option as $key ) {
                 if ( in_array( $instance[$key], $value ) )
