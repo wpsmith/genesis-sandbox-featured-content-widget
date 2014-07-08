@@ -83,11 +83,17 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_form_fields - Add custom fields to widget form
 
 == Changelog ==
+1.1.8 (07/18/2014)
+* Fixed post_info/post_meta issue #26, props BenFurfie.
+* Fixed link_title_field issue, #27.
+* Fixed conflict with Premise, which is their fault really, #18.
+
 1.1.7 (07/18/2014)
 * Fixed include/exclude issue. #28
 
 1.1.6 (07/18/2014)
 * Fixed meta_value_numeric to show meta_key input. TY @4WardMotion.
+* Fixed image link issue, #22.
 
 1.1.2 (01/12/2013)
 * Fixed column classes to ensure they over-ride child theme settings if selected.
