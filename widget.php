@@ -723,10 +723,11 @@ function gsfcSave(t) {
             GS_Featured_Content::action( 'gsfc_taxonomy_more', $instance );
             GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
             $term = GS_Featured_Content::get_term_by( 'slug', $posts_term['1'], $taxonomy );
+            $link = $instance['archive_link'] ? $instance['archive_link'] : esc_url( get_term_link( $posts_term['1'], $taxonomy ) );
 			printf(
 				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
                 $taxonomy,
-				esc_url( get_term_link( $posts_term['1'], $taxonomy ) ),
+				$link,
 				esc_attr( $term->name ),
 				esc_html( $instance['more_from_category_text'] )
 			);
@@ -1478,9 +1479,9 @@ function gsfcSave(t) {
                 'description' => '',
                 'type'        => 'checkbox',
                 'requires'    => array(
-                    'post_type',
-                    'page',
-                    true
+                    'posts_term',
+                    '',
+                    false
                 ),
             ),
             'more_from_category_text' => array(
