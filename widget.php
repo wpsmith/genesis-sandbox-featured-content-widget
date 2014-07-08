@@ -717,24 +717,38 @@ function gsfcSave(t) {
     public static function do_more_from_category( $instance ) {
         $posts_term = $instance['posts_term'];
         $taxonomy   = $instance['taxonomy'];
-        
+
+        if ( empty( $instance['archive_link'] ) ) {
+            $term = GS_Featured_Content::get_term_by( 'slug', $posts_term['1'], $taxonomy );
+
+            $more_class = $taxonomy;
+            $more_link = esc_url( get_term_link( $posts_term['1'], $taxonomy ) );
+            $more_name = esc_attr( $term->name );
+        } else {
+            $more_class = sanitize_title( $instance['more_from_category_text'] );
+            $more_link = esc_url( $instance['archive_link'] );
+            $more_name = esc_html( $instance['more_from_category_text'] );
+        }
+
+        $more_text = esc_html( $instance['more_from_category_text'] );
+
         if ( ! empty( $instance['more_from_category'] ) && ! empty( $posts_term['0'] ) ) {
             GS_Featured_Content::action( 'gsfc_category_more', $instance );
             GS_Featured_Content::action( 'gsfc_taxonomy_more', $instance );
-            GS_Featured_Content::action( 'gsfc_' . $taxonomy . '_more', $instance );
-            $term = GS_Featured_Content::get_term_by( 'slug', $posts_term['1'], $taxonomy );
-			printf(
-				'<p class="more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
-                $taxonomy,
-				esc_url( get_term_link( $posts_term['1'], $taxonomy ) ),
-				esc_attr( $term->name ),
-				esc_html( $instance['more_from_category_text'] )
-			);
+            GS_Featured_Content::action( 'gsfc_' . $more_name . '_more', $instance );
+
+            printf(
+                '<p class="more-from-archive more-from-%1$s"><a href="%2$s" title="%3$s">%4$s</a></p>',
+                $more_class,
+                $more_link,
+                $more_name,
+                $more_text
+            );
         }
         
         GS_Featured_Content::action( 'gsfc_after_category_more', $instance );
         GS_Featured_Content::action( 'gsfc_after_taxonomy_more', $instance );
-        GS_Featured_Content::action( 'gsfc_after_' . $taxonomy . '_more', $instance );
+        GS_Featured_Content::action( 'gsfc_after_' . $more_name . '_more', $instance );
     }
     
     /**
