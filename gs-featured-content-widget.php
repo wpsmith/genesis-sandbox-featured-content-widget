@@ -7,15 +7,15 @@
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
  *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU 
- * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume 
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume
  * that you can use any other version of the GPL.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
- 
+
 /**
  * Genesis Sandbox Featured Post Widget
  *
@@ -50,7 +50,7 @@ function gsfc_activation_check() {
         deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
         wp_die( sprintf( __( 'Sorry, you can\'t activate unless you have installed %1$sGenesis%2$s', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', '</a>' ) );
     }
-    
+
     if ( ! function_exists( 'genesis_upgrade_2001' ) ) {
         deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
         wp_die( sprintf( __( 'Sorry, you can\'t activate without %1$sGenesis %2$s%3$s or greater', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', $latest, '</a>' ) );
@@ -65,11 +65,11 @@ add_action( 'genesis_init', 'gsfc_init', 50 );
 function gsfc_init() {
     if ( is_admin() ) {
         require_once( 'gsfc-settings.php' );
-        
+
         global $_gsfc_settings;
         $_gsfc_settings = new GSFC_Settings();
     }
-    
+
 }
 
 require_once( 'widget.php' );
@@ -93,7 +93,7 @@ function gsfc_widgets_init() {
 add_filter( 'plugin_action_links', 'gsfc_action_links', 10, 2 );
 /**
  * Add Menus & Donate Action Link.
- * 
+ *
  * @param array $links Array of links.
  * @param string $file Basename of plugin.
  * @return array $links Maybe modified array of links.
