@@ -1881,8 +1881,8 @@ function gsfcSave(t) {
      * 
      * @return string Imploded array.
      */
-    public static function data_implode( $a ) {
-        if ( is_array( $a ) && !empty( $a ) )
+    public static function data_implode( $a ) { var_dump( $a );
+        if ( is_array( $a ) && !empty( $a ) && 2 <= count( $a ) && is_string( $a[0] ) && is_string( $a[1] ) )
             return sprintf( ' data-requires-key="%s" data-requires-val="%s"', $a[0], $a[1] );
         else
             return '';
