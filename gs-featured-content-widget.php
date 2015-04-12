@@ -3,7 +3,7 @@
  * Plugin Name: Genesis Sandbox Featured Content Widget
  * Plugin URI: https://wpsmith.net/
  * Description: Based on the Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
- * Version: 1.1.8
+ * Version: 1.2.4
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
  *
@@ -24,40 +24,12 @@
  * @author     Travis Smith
  * @license    http://www.opensource.org/licenses/gpl-license.php GPL v2.0 (or later)
  * @link       http://wpsmith.net/
-<?php
-/**
- * Plugin Name: Genesis Sandbox Featured Content Widget
- * Plugin URI: https://wpsmith.net/
- * Description: Based on the Genesis Featured Widget Amplified for additional functionality which allows support for custom post types, taxonomies, and extends the flexibility of the widget via action hooks to allow the elements to be re-positioned or other elements to be added.
- * Version: 1.1.8
- * Author: Travis Smith
- * Author URI: http://wpsmith.net/
- *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU 
- * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume 
- * that you can use any other version of the GPL.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
- */
- 
-/**
- * Genesis Sandbox Featured Post Widget
- *
- * @category   Genesis_Sandbox_Featured_Content
- * @package    Widgets
- * @author     Travis Smith
- * @license    http://www.opensource.org/licenses/gpl-license.php GPL v2.0 (or later)
- * @link       http://wpsmith.net/
- * @since      1.2.3
- */
 
 /** Exit if accessed directly */
 if ( ! defined( 'ABSPATH' ) ) exit( 'Cheatin&#8217; uh?' );
 
 define( 'GSFC_PLUGIN_NAME', basename( dirname( __FILE__ ) ) );
-define( 'GSFC_PLUGIN_VERSION', '1.1.0' );
+define( 'GSFC_PLUGIN_VERSION', '1.2.2' );
 
 /** Load textdomain for translation */
 load_plugin_textdomain( 'gsfc', false, basename( dirname( __FILE__ ) ) . '/languages/' );
