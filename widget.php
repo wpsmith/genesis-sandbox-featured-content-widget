@@ -226,7 +226,7 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Adds all Widget's Actions at once for easy removal.
+     * Sets excerpt length.
      *
      * @param int $length Current excerpt length.
      * @return int Maybe new excerpt length.
@@ -238,7 +238,7 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Adds all Widget's Actions at once for easy removal.
+     * Adds plugin CSS.
      */
     public static function enqueue_style( $instance ) {
         if ( is_admin() ) return;
@@ -340,7 +340,7 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Inserts Post Image
+     * Outputs post info/byline.
      *
      * @param array $instance The settings for the particular instance of the widget.
      */
@@ -463,7 +463,7 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Outputs Post Title if option is selects
+     * Outputs Post Title if option is selected.
      *
      * @param array $instance The settings for the particular instance of the widget.
      */
@@ -494,7 +494,7 @@ class GS_Featured_Content extends WP_Widget {
     }
     
     /**
-     * Outputs the selected content option if any
+     * Outputs the selected content option, if any.
      *
      * @param array $instance The settings for the particular instance of the widget.
      */
@@ -530,7 +530,7 @@ class GS_Featured_Content extends WP_Widget {
     }
 
     /**
-     * Outputs post meta if option is selected and anything is in the post meta field
+     * Outputs post meta if option is selected and anything is in the post meta field.
      *
      * @param array $instance The settings for the particular instance of the widget.
      */
@@ -609,7 +609,7 @@ function gsfcSave(t) {
     }
     
     /**
-     * Sanitizies transient name (to less than 40 characters)
+     * Sanitizes transient name (to less than 40 characters)
      * 
      * @param string $name Transient name. 
      * @return string $name Maybe modified transient name.
