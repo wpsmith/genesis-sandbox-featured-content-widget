@@ -373,7 +373,7 @@ class GS_Featured_Content extends WP_Widget {
 
         global $post;
 
-        $attributes['class']    = sprintf( 'entry-image attachment-%s %s', $post->post_type, $attributes['align'] );
+        $attributes['class']    = sprintf( 'entry-image attachment-%s gsfc-%s', $post->post_type, $attributes['align'] );
         unset( $attributes['align'] );
         $attributes['itemprop'] = 'image';
 
