@@ -311,12 +311,13 @@ class GS_Featured_Content extends WP_Widget {
      * @return array $classes Modified array of post classes.
      */
     public static function post_class( $classes ) {
-        global $gs_counter;
-        $classes[] = sprintf( 'gs-%s', $gs_counter + 1 );
-        $classes[] = $gs_counter + 1 & 1 ? 'gs-odd' : 'gs-even';
-        $classes[] = 'gs-featured-content-entry';
-        
-        //* First Class
+		    global $gs_counter;
+		    $classes[] = sprintf( 'gs-%s', $gs_counter + 1 );
+		    $classes[] = $gs_counter + 1 & 1 ? 'gs-odd' : 'gs-even';
+		    $classes[] = $gs_counter == 4 ? 'gs-odd' : 'gs-even';
+		    $classes[] = 'gs-featured-content-entry';
+
+		    //* First Class
         if ( GS_Featured_Content::has_value( 'column_class' ) && ( 0 == $gs_counter || 0 == $gs_counter % GS_Featured_Content::get_col_class_num( GS_Featured_Content::$widget_instance['column_class'] ) ) )
             $classes[] = 'first';
         
@@ -1881,7 +1882,7 @@ function gsfcSave(t) {
      * 
      * @return string Imploded array.
      */
-    public static function data_implode( $a ) { var_dump( $a );
+    public static function data_implode( $a ) {
         if ( is_array( $a ) && !empty( $a ) && 2 <= count( $a ) && is_string( $a[0] ) && is_string( $a[1] ) )
             return sprintf( ' data-requires-key="%s" data-requires-val="%s"', $a[0], $a[1] );
         else
