@@ -164,12 +164,12 @@ class GS_Featured_Content extends WP_Widget {
         
         //* Do Post Image
         add_filter( 'genesis_attr_gsfc-entry-image-widget', array( 'GS_Featured_Content', 'attributes_gsfc_entry_image_widget' ) );
-        add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
+        add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_post_image' ), 4 );
         add_action( 'gsfc_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
         add_action( 'gsfc_after_post_content', array( 'GS_Featured_Content', 'do_post_image' ) );
         
         //* Do before widget post content
-        add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_gravatar' ) );
+        add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_gravatar' ), 4 );
         add_action( 'gsfc_before_post_content', array( 'GS_Featured_Content', 'do_post_title' ) );
         
         //* Maybe Linkify Widget Title
