@@ -24,7 +24,7 @@
  * @author     Travis Smith
  * @license    http://www.opensource.org/licenses/gpl-license.php GPL v2.0 (or later)
  * @link       http://wpsmith.net/
- * @since      1.1.0
+ * @since      1.2.0
  */
 
 /** Exit if accessed directly */
