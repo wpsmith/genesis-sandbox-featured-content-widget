@@ -2,79 +2,79 @@
   Link: http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css
 --------------------------------------------- */
 
-.widget.featured-content-portfolio .gs-featured-content-entry {
+.widget.featured-content .gs-featured-content-entry {
 	clear: none !important;
 }
 
-.widget.featured-content-portfolio .five-sixths,
-.widget.featured-content-portfolio .four-sixths,
-.widget.featured-content-portfolio .four-fifths,
-.widget.featured-content-portfolio .one-fifth,
-.widget.featured-content-portfolio .one-fourth,
-.widget.featured-content-portfolio .one-half,
-.widget.featured-content-portfolio .one-sixth,
-.widget.featured-content-portfolio .one-third,
-.widget.featured-content-portfolio .three-fourths,
-.widget.featured-content-portfolio .three-fifths,
-.widget.featured-content-portfolio .three-sixths,
-.widget.featured-content-portfolio .two-fourths,
-.widget.featured-content-portfolio .two-fifths,
-.widget.featured-content-portfolio .two-sixths,
-.widget.featured-content-portfolio .two-thirds {
+.widget.featured-content .five-sixths,
+.widget.featured-content .four-sixths,
+.widget.featured-content .four-fifths,
+.widget.featured-content .one-fifth,
+.widget.featured-content .one-fourth,
+.widget.featured-content .one-half,
+.widget.featured-content .one-sixth,
+.widget.featured-content .one-third,
+.widget.featured-content .three-fourths,
+.widget.featured-content .three-fifths,
+.widget.featured-content .three-sixths,
+.widget.featured-content .two-fourths,
+.widget.featured-content .two-fifths,
+.widget.featured-content .two-sixths,
+.widget.featured-content .two-thirds {
 	float: left;
 	margin-left: 2.564102564102564% !important;
 	margin-right: 0 !important;
 }
 
-.widget.featured-content-portfolio .one-half,
-.widget.featured-content-portfolio .three-sixths,
-.widget.featured-content-portfolio .two-fourths {
+.widget.featured-content .one-half,
+.widget.featured-content .three-sixths,
+.widget.featured-content .two-fourths {
 	width: 48.717948717948715% !important;
 }
 
-.widget.featured-content-portfolio .one-third,
-.widget.featured-content-portfolio .two-sixths {
+.widget.featured-content .one-third,
+.widget.featured-content .two-sixths {
 	width: 31.623931623931625% !important;
 }
 
-.widget.featured-content-portfolio .four-sixths,
-.widget.featured-content-portfolio .two-thirds {
+.widget.featured-content .four-sixths,
+.widget.featured-content .two-thirds {
 	width: 65.81196581196582% !important;
 }
 
-.widget.featured-content-portfolio .one-fourth {
+.widget.featured-content .one-fourth {
 	width: 23.076923076923077% !important;
 }
 
-.widget.featured-content-portfolio .three-fourths {
+.widget.featured-content .three-fourths {
 	width: 74.35897435897436% !important;
 }
 
-.widget.featured-content-portfolio .one-fifth {
+.widget.featured-content .one-fifth {
 	width: 17.9487179487179488% !important;
 }
 
-.widget.featured-content-portfolio .two-fifths {
+.widget.featured-content .two-fifths {
 	width: 38.4615384615384616% !important;
 }
 
-.widget.featured-content-portfolio .three-fifths {
+.widget.featured-content .three-fifths {
 	width: 58.9743589743589744% !important;
 }
 
-.widget.featured-content-portfolio .four-fifths {
+.widget.featured-content .four-fifths {
 	width: 79.4871794871794872% !important;
 }
 
-.widget.featured-content-portfolio .one-sixth {
+.widget.featured-content .one-sixth {
 	width: 14.52991452991453% !important;
 }
 
-.widget.featured-content-portfolio .five-sixths {
+.widget.featured-content .five-sixths {
 	width: 82.90598290598291% !important;
 }
 
-.widget.featured-content-portfolio .first {
+.widget.featured-content .first {
 	clear: both;
 	margin-left: 0 !important;
 }
