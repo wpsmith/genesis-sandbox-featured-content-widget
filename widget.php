@@ -1143,7 +1143,7 @@ function gsfcSave(t) {
                     'one-third'     => __( 'One Third', 'gsfc' ),
                     'one-fourth'    => __( 'One Fourth', 'gsfc' ),
                     'one-fifth'     => __( 'One Fifth', 'gsfc' ),
-                    'one-sixith'    => __( 'One Sixth', 'gsfc' ),
+                    'one-sixth'    => __( 'One Sixth', 'gsfc' ),
                     'two-thirds'    => __( 'Two Thirds', 'gsfc' ),
                     'three-fourths' => __( 'Three Fourths', 'gsfc' ),
                     'two-fifths'    => __( 'Two Fifths', 'gsfc' ),
