@@ -879,7 +879,7 @@ function gsfcSave(t) {
      * @return array Array of image size options.
      */    
     public static function get_image_size_options() {
-        $sizes = genesis_get_additional_image_sizes();
+        $sizes = genesis_get_image_sizes();
         $image_size_opt['thumbnail'] = 'thumbnail ('. get_option( 'thumbnail_size_w' ) . 'x' . get_option( 'thumbnail_size_h' ) . ')';
 		foreach( ( array )$sizes as $name => $size ) 
 			$image_size_opt[ $name ] = esc_html( $name ) . ' (' . $size['width'] . 'x' . $size['height'] . ')';
