@@ -7,15 +7,15 @@
  * Author: Travis Smith
  * Author URI: http://wpsmith.net/
  *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU 
- * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume 
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License version 2, as published by the Free Software Foundation.  You may NOT assume
  * that you can use any other version of the GPL.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
- 
+
 /**
  * Genesis Sandbox Featured Post Widget
  *
@@ -34,25 +34,53 @@ define( 'GSFC_PLUGIN_VERSION', '1.2.2' );
 /** Load textdomain for translation */
 load_plugin_textdomain( 'gsfc', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 
-// register_activation_hook( __FILE__, 'gsfc_activation_check' );
+/**
+ * Add admin notice notifying user that Genesis is required
+ */
+function gsfc_notify_genesis_required() {
+
+    echo '<div class="error below-h2"><p><strong>Sorry, but the Genesis Sandbox Featured Post Widget plugin cannot be activated without Genesis or a Genesis child theme already activated.</strong></p></div>';
+
+    // Prevent the Plugin Activated message from appearing
+    if ( isset( $_GET['activate'] ) ) {
+        unset( $_GET['activate'] );
+    }
+}
+
+/**
+ * Called by admin_init hook if plugin needs deactivated due
+ * to not meeting requirements.
+ */
+function gsfc_plugin_deactivate() {
+    deactivate_plugins( plugin_basename( __FILE__ ) );
+}
+
+register_activation_hook( __FILE__, 'gsfc_activation_check' );
 /**
  * Checks for minimum Genesis Theme version before allowing plugin to activate
  *
  * @uses genesis_truncate_phrase()
+ * @return bool Indicate whether plugin was activated
  */
 function gsfc_activation_check() {
 
     $latest = '2.0';
 
     if ( basename( get_template_directory() ) != 'genesis' ) {
-        deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
-        wp_die( sprintf( __( 'Sorry, you can\'t activate unless you have installed %1$sGenesis%2$s', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', '</a>' ) );
+        // Deactivate the plugin and send a notice to the user
+        add_action( 'admin_init', 'gsfc_plugin_deactivate' );
+        add_action( 'admin_notices', 'gsfc_notify_genesis_required' );
+        return false;
     }
-    
-    if ( ! function_exists( 'genesis_upgrade_2001' ) ) {
-        deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate ourself
-        wp_die( sprintf( __( 'Sorry, you can\'t activate without %1$sGenesis %2$s%3$s or greater', 'gsfc' ), '<a href="http://wpsmith.net/get-genesis/">', $latest, '</a>' ) );
+
+    if ( ! function_exists( 'genesis_upgrade_2001' ) || ! function_exists( 'genesis_get_option' ) ) {
+        // Deactivate the plugin and send a notice to the user
+        add_action( 'admin_init', 'gsfc_plugin_deactivate' );
+        add_action( 'admin_notices', 'gsfc_notify_genesis_required' );
+        return false;
     }
+
+    return true;
 }
 
 add_action( 'genesis_init', 'gsfc_init', 50 );
@@ -63,11 +91,11 @@ add_action( 'genesis_init', 'gsfc_init', 50 );
 function gsfc_init() {
     if ( is_admin() ) {
         require_once( 'gsfc-settings.php' );
-        
+
         global $_gsfc_settings;
         $_gsfc_settings = new GSFC_Settings();
     }
-    
+
 }
 
 require_once( 'widget.php' );
@@ -78,6 +106,9 @@ add_action( 'widgets_init', 'gsfc_widgets_init', 50 );
  * @since 1.1.0
  */
 function gsfc_widgets_init() {
+    if( gsfc_activation_check() === false ) {
+        return;
+    }
     if ( class_exists( 'Premise_Base' ) && !is_admin() ) {
         return;
     }
@@ -91,7 +122,7 @@ function gsfc_widgets_init() {
 add_filter( 'plugin_action_links', 'gsfc_action_links', 10, 2 );
 /**
  * Add Menus & Donate Action Link.
- * 
+ *
  * @param array $links Array of links.
  * @param string $file Basename of plugin.
  * @return array $links Maybe modified array of links.
