@@ -490,6 +490,9 @@ class GS_Featured_Content extends WP_Widget {
             $hclass = '';
 		}
 
+		// Act like WP so the_title filters still run
+		$title = apply_filters( 'the_title', $title, get_the_ID() );
+
         $pattern = apply_filters( 'gsfc_post_title_pattern', '<h2%s>%s%s%s</h2>' );
         printf( $pattern, $hclass, $wrap_open, $title, $wrap_close );
     }
