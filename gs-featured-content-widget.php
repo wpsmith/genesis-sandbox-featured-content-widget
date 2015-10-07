@@ -78,6 +78,9 @@ add_action( 'widgets_init', 'gsfc_widgets_init', 50 );
  * @since 1.1.0
  */
 function gsfc_widgets_init() {
+    if( !function_exists( 'genesis_get_option' ) ) {
+			      return false;
+    }
     if ( class_exists( 'Premise_Base' ) && !is_admin() ) {
         return;
     }
