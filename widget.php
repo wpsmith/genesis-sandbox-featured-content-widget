@@ -404,7 +404,7 @@ class GS_Featured_Content extends WP_Widget {
 				'attr'    => genesis_parse_attr( 'gsfc-entry-image-widget', array( 'align' => $align, ) ),
 			) );
         
-        $image = $instance['link_image'] == 1 ? sprintf( '<a href="%s" title="%s" class="%s">%s</a>', $link, the_title_attribute( 'echo=0' ), $align, $image ) : $image;
+        $image = $instance['link_image'] == 1 && ! empty( $image ) ? sprintf( '<a href="%s" title="%s" class="%s">%s</a>', $link, the_title_attribute( 'echo=0' ), $align, $image ) : $image;
         
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_before_post_content', 'image_position', 'before-title', $image );
         GS_Featured_Content::maybe_echo( $instance, 'gsfc_post_content', 'image_position', 'after-title', $image );
