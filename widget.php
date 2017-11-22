@@ -1762,7 +1762,7 @@ function gsfcSave(t) {
 							break;
 							
 						case 'checkbox' :
-                            printf( '<input type="checkbox" id="%1$s" name="%2$s" value="1" class="widget-control-save" %3$s />',
+                            printf( '<input type="checkbox" id="%1$s" name="%2$s" value="1" %3$s />',
                                 $obj->get_field_id( $field_id ),
                                 $obj->get_field_name( $field_id ),
                                 checked( 1, $instance[$field_id], false )
