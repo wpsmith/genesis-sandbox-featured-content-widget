@@ -83,6 +83,9 @@ Well, I bother Nick all the time to change things. He's busy. I'm busy. So, inst
 1. gsfc_form_fields - Add custom fields to widget form
 
 == Changelog ==
+1.2.5 (11/22/2017)
+* Fixed disabled checkboxes. Props mbootsman
+
 1.1.8 (07/18/2014)
 * Fixed post_info/post_meta issue #26, props BenFurfie.
 * Fixed link_title_field issue, #27.
